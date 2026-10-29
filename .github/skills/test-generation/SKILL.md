@@ -1,64 +1,71 @@
 ---
 name: test-generation
-description: Build a deterministic failing reproduction test or script (Red Gate) and record Commit 1 of the sequenced lifecycle.
-argument-hint: "<issue-id or path to triage-brief.md>"
+description: Build a deterministic failing reproduction test or feature acceptance test suite (Red Gate) and record Commit 1 of the sequenced lifecycle.
+argument-hint: "<issue-id or feature-id, or path to brief/spec>"
 disable-model-invocation: true
 origin: "workflow/triage-team (MIT)"
 ---
 
 # Test Generation (The Red Gate)
 
-Enforce the Hard QA-First Red Gate: construct an automated, deterministic test or command that reliably triggers the defect **before** any application code is touched, and seal Commit 1 on the fix branch.
+Enforce the Hard QA-First Red Gate: construct an automated, deterministic test suite or reproduction command that reliably fails (turns **Red**) **before** any application or feature code is touched, and seal Commit 1 on the topic branch.
 
-> **Law of the Red Gate**: *No reproduction command = No fix allowed. Developers cannot edit production code until QA demonstrates a reproducible failure.*
+> **Law of the Red Gate**: *No failing test = No code allowed. Developers cannot edit production code or implement features until QA demonstrates a deterministic Red test.*
 
 ---
 
 ## Responsibilities & Constraints
 - **Role**: Executed by the **QA Agent**.
-- **Boundaries**: Operates within test directories or `.triage/<issue-id>/`. Does **not** modify application/production code.
+- **Boundaries**: Operates within test directories, `.triage/<issue-id>/`, or `<feature-dir>/`. Does **not** modify application/production code.
 
 ---
 
-## The 4-Step Reproduction Workflow
+## Operating Modes
 
-### Step 1: Ingest Triage Brief
-Read `.triage/<issue-id>/triage-brief.md` to understand the reported defect, expected behavior, and suspected seam.
+### Mode A: Defect Reproduction (Bug Triage)
+When resolving bugs or issues:
+1. **Ingest Triage Brief**: Read `.triage/<issue-id>/triage-brief.md` to identify the defect, expected behavior, and suspected seam.
+2. **Select Harness**: Build minimal test file or executable script `.triage/<issue-id>/reproduce.*`.
+3. **Verify Red**: Run the reproduction command. It **must fail** with the exact error described in the bug report.
+4. **Budget**: Maximum 3 attempts. If irreproducible, mark in `reproduction-report.md` and escalate to Coordinator.
+5. **Seal Commit 1**:
+   ```bash
+   git add .triage/<issue-id>/triage-brief.md .triage/<issue-id>/reproduce.* .triage/<issue-id>/reproduction-report.md
+   git commit -m "test(<subsystem>): reproduce <issue-id> failure (Red Gate)"
+   ```
 
-### Step 2: Select the Fastest Deterministic Harness
-Inspect the repository's existing test infrastructure:
-- Unit / Integration Test suites (`pytest`, `jest`, `vitest`, `dotnet test`, `cargo test`, `go test`).
-- Shell scripts or minimal standalone CLI invocations.
-- Write a minimal failing test file or an executable script `.triage/<issue-id>/reproduce.*`.
+### Mode B: Acceptance Test Generation (Feature Development)
+When building new features:
+1. **Ingest Feature Specification**: Read `<feature-dir>/spec.md` and `feature-brief.md` to extract the Gherkin scenarios (`Given / When / Then`).
+2. **Construct Acceptance Suite**:
+   - Write automated unit, integration, or contract tests matching each scenario in `spec.md`.
+   - Place tests into appropriate test directories or `<feature-dir>/acceptance-tests.*`.
+3. **Verify Red**: Run the acceptance suite. Because the feature is not yet implemented, the suite **must fail deterministically (Red)** on missing classes, endpoints, or unmet assertions.
+4. **Budget**: Maximum 3 formulation attempts. If tests cannot be compiled or formulated, escalate to Coordinator for specification clarification.
+5. **Seal Commit 1**:
+   ```bash
+   git add <feature-dir>/feature-brief.md <feature-dir>/grilling-records.md <feature-dir>/spec.md <test-files> docs/adr/ CONTEXT.md
+   git commit -m "test(<subsystem>): define acceptance test suite for <feature-id>"
+   ```
 
-### Step 3: Verify Deterministic Failure (Red)
-Run the reproduction command. It **must fail** with the exact error, symptom, or assertion failure described in the bug report.
-- **Flakiness Check**: If the defect involves asynchronous timing or concurrency, run the reproduction command multiple times (e.g. 10x) to confirm a measurable failure rate.
-- **Budget**: QA has a maximum of **3 attempts** to formulate a successful reproduction script.
-  - If reproduction fails on attempt 3, QA writes `.triage/<issue-id>/reproduction-report.md` marking the bug as **Irreproducible** with diagnostics, and halts for Coordinator escalation (Coordinator will switch to `main` and delete the local topic branch).
+---
 
-### Step 4: Record Reproduction Artifact & Seal Commit 1
-Once verified Red, write `.triage/<issue-id>/reproduction-report.md`:
+## Verification Artifact Template
+Save the test run proof to `<artifact-dir>/reproduction-report.md` (for bugs) or `<feature-dir>/acceptance-report.md` (for features):
 ```markdown
-# Reproduction Report: [Issue ID]
+# [Reproduction | Acceptance Test] Report: [ID]
 
 - **Status**: RED (Verified Failing)
-- **Reproduction Command**: `[Exact command to run]`
-- **Reproduction File**: `[Path to test file]`
+- **Execution Command**: `[Exact test runner command]`
+- **Test File(s)**: `[Path to test files]`
 
 ## Failure Output
 ```text
-[Truncated stack trace / assertion failure]
+[Truncated test failure / assertion trace]
 ```
 
 ## Gate Verification
-- [x] Fails reliably on current codebase
-- [x] Does not depend on undocumented external state
-- [x] Ready for Developer RCA and fix
-```
-
-Per [ADR 0007](file:///workspaces/teachmeanything/docs/adr/0007-sequenced-commit-git-lifecycle-and-persistent-triage.md), seal **Commit 1** of the sequenced git lifecycle:
-```bash
-git add .triage/<issue-id>/triage-brief.md .triage/<issue-id>/reproduce.* .triage/<issue-id>/reproduction-report.md
-git commit -m "test(<subsystem>): reproduce <issue-id> failure (Red Gate)"
+- [x] Fails deterministically on unpatched codebase
+- [x] Directly exercises target scope without external flaky dependencies
+- [x] Ready for Developer implementation
 ```

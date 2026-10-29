@@ -77,3 +77,32 @@ When working on defect resolution, triage, or running `/triage-orchestrator`:
    - 3-iteration fix budget. On the 3rd failure, the Coordinator executes `git reset`, writes a Failure Debrief, and halts for user consultation.
 6. **PR Creation & Human Review**:
    - Once all 3 commits are sealed, Coordinator pushes to `origin` and opens a PR via `gh pr create` with the full verification matrix table. The human acts as the final gatekeeper on GitHub before merge.
+
+---
+
+## 4. Feature Development Agent Team
+
+When building new features, functionalities, or running `/feature-orchestrator`:
+
+1. **The 4 Agent Roles**:
+   - **Coordinator Agent**: Oversees intake, conducts interactive Socratic grilling (`/feature-spec` via `grill-with-docs`) in the main chat with the user, logs ADRs, scaffolds persistent specification bundle, cuts topic branch (`feat/<feature-id>-<slug>`), and synthesizes the PR (`/pr-creation`).
+   - **QA Agent**: Translates Gherkin specifications into an executable failing acceptance test suite (Commit 1: `test(<scope>): define acceptance test suite for <feature-id>`), verifies Green acceptance status, and conducts Two-Axis Code Review (`/code-review`).
+   - **Developer Agent**: Implements the minimal code diff required to satisfy the specification and turn acceptance tests Green (Commit 2: `feat(<scope>): implement <feature-id> per spec`).
+   - **Security Agent**: Performs pre-commit security audits checking for credentials, injection vulnerabilities, and OWASP compliance (Commit 3: `docs(<scope>): record QA verification and security audit`).
+2. **The Mandatory Grilling Gate Invariant**:
+   - No subagent is dispatched and no code branch is cut until the Coordinator conducts the `grill-with-docs` interview directly with the user and the user explicitly signs off on the specification.
+3. **The Acceptance Red Gate Invariant**:
+   - Developer is strictly barred from modifying or creating application code until QA produces an automated failing acceptance test suite (Red).
+4. **The 3-Commit Gate Standard & Context-Aware Persistence**:
+   - Every feature branch must feature exactly 3 sequenced, atomic conventional commits:
+     - **Commit 1**: `test(<scope>): define acceptance test suite for <feature-id>` (Spec bundle + failing tests + Red report).
+     - **Commit 2**: `feat(<scope>): implement <feature-id> per spec` (Application diff + implementation notes).
+     - **Commit 3**: `docs(<scope>): record QA verification and security audit` (QA Green report + Security clearance).
+   - **Persistence Path**:
+     - Repo-wide features: `.features/<feature-id>/`
+     - Topic-specific features: `topics/<topic-name>/.features/<feature-id>/` (preserving topic isolation).
+     - Permanently tracked in git. Never `.gitignore` `.features/`.
+5. **Circuit Breaker**:
+   - 3-iteration implementation budget. On the 3rd failure of QA or Security verification, Coordinator executes `git reset`, writes `failure-debrief.md`, and halts for user consultation.
+6. **PR Creation & Human Review**:
+   - Once all 3 commits are sealed, Coordinator pushes to `origin` and opens a PR via `gh pr create` with the full verification matrix table.

@@ -12,3 +12,7 @@ See [AGENTS.md](./AGENTS.md) for the complete multi-topic policy.
 - For bug triage & resolution, follow the 4-agent team workflow (Coordinator, QA, Developer, Security) defined in `AGENTS.md` and orchestrated via `/triage-orchestrator`.
 - Enforce the Hard QA-First Red Gate: no production code changes until a deterministic failing reproduction test is verified.
 - Enforce the 3-Commit Gate Standard: early branch creation `fix/<issue-id>-<slug>`, 3 sequenced conventional commits (reproduce, fix, verify), persistent `.triage/` tracking, and automated PR creation for human review.
+- For new feature development, follow the 4-agent team workflow orchestrated via `/feature-orchestrator`.
+- Enforce the Mandatory Grilling Gate: Coordinator conducts an interactive `grill-with-docs` session directly with the user before any code branch is cut or subagents are dispatched.
+- Enforce the Acceptance Red Gate: no feature code changes until QA produces an automated failing acceptance test suite (Red).
+- Enforce context-aware persistence: `.features/<feature-id>/` for repo features, or `topics/<topic-name>/.features/<feature-id>/` for topic features, preserved across 3 sequential commits on `feat/<feature-id>-<slug>`.
