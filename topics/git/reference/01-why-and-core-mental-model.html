@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Git Reference: Core Mental Model & Foundations</title>
+  <link rel="stylesheet" href="../assets/style.css">
+  <style>
+    .ref-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1rem;
+      margin: 1.5rem 0;
+    }
+    .ref-box {
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      background: var(--bg-card);
+      padding: 1.25rem;
+    }
+    .ref-box h3 {
+      margin-top: 0;
+      color: var(--git-orange);
+      font-size: 1rem;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 0.4rem;
+    }
+    .cmd-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1.5rem 0;
+      font-size: 0.95rem;
+    }
+    .cmd-table th, .cmd-table td {
+      border: 1px solid var(--border-color);
+      padding: 0.75rem 1rem;
+      text-align: left;
+    }
+    .cmd-table th {
+      background: var(--bg-card-alt);
+      font-weight: 700;
+    }
+    .cmd-table code {
+      font-family: var(--font-mono);
+      background: var(--primary-light);
+      color: var(--primary);
+      padding: 0.15rem 0.4rem;
+      border-radius: 4px;
+      font-size: 0.88rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="lesson-header">
+      <div class="lesson-badge">Quick Reference Card #01</div>
+      <h1>Git Foundations & Core Mental Model</h1>
+      <p>A compressed cheat sheet of the fundamental reasons for version control, Git's snapshot mechanics, and essential Day 1 terminal commands.</p>
+    </header>
+
+    <main>
+      <h2>1. The "Why": What Git Solves</h2>
+      <div class="ref-grid">
+        <div class="ref-box">
+          <h3>1. Time Travel</h3>
+          <p>Instantly jump back to any prior working version of your software without keeping duplicate folders or messy <code>_v2_final</code> files.</p>
+        </div>
+        <div class="ref-box">
+          <h3>2. Zero Overwrite Risk</h3>
+          <p>Multiple developers can work on the exact same files simultaneously. Git isolates individual work and flags overlapping lines cleanly.</p>
+        </div>
+        <div class="ref-box">
+          <h3>3. Complete Accountability</h3>
+          <p>Every single line of code is attributed to an author, a timestamp, and a clear message explaining <em>why</em> the change was introduced.</p>
+        </div>
+        <div class="ref-box">
+          <h3>4. Fearless Experimentation</h3>
+          <p>Create cheap branch sandboxes to test radical ideas. If it fails, delete the branch with zero impact on the working main codebase.</p>
+        </div>
+      </div>
+
+      <h2>2. The "How": Git's Snapshot Model</h2>
+      <p>Unlike older version control systems (like SVN or CVS) that stored a base file plus lists of line-by-line differences (deltas), <strong>Git thinks in snapshots</strong>:</p>
+      <ul>
+        <li>Every time you commit, Git takes a picture of what all your files look like at that exact moment and stores a reference to that snapshot.</li>
+        <li>To be extremely fast and efficient, if a file has not changed, Git does not store the file again—it simply links directly to the identical file it already stored.</li>
+        <li>Everything in Git is checksummed using cryptographic hashes before it is stored, making it mathematically impossible to alter history undetected.</li>
+      </ul>
+
+      <h2>3. The Three Areas (Mental Map)</h2>
+      <table class="cmd-table">
+        <thead>
+          <tr>
+            <th>Area</th>
+            <th>Location</th>
+            <th>What It Does</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Working Directory</strong></td>
+            <td>Your local folder (files you edit in VS Code / terminal)</td>
+            <td>Uncommitted scratchpad where you edit, delete, and experiment with real files.</td>
+          </tr>
+          <tr>
+            <td><strong>Staging Area (Index)</strong></td>
+            <td><code>.git/index</code> binary file</td>
+            <td>The staging preview where you pick and choose exactly what changes go into the next snapshot.</td>
+          </tr>
+          <tr>
+            <td><strong>Git Repository</strong></td>
+            <td><code>.git/objects/</code> database</td>
+            <td>Permanent history of sealed, immutable commit snapshots.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2>4. Fundamental Day 1 CLI Commands</h2>
+      <table class="cmd-table">
+        <thead>
+          <tr>
+            <th>Command</th>
+            <th>Description & Use Case</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>git init</code></td>
+            <td>Turns the current directory into a tracked Git repository by creating the hidden <code>.git</code> database folder.</td>
+          </tr>
+          <tr>
+            <td><code>git status</code></td>
+            <td>Your navigation compass: inspects which files are modified, untracked, or staged for the next commit.</td>
+          </tr>
+          <tr>
+            <td><code>git add &lt;file&gt;</code></td>
+            <td>Moves changes from the Working Directory into the Staging Area (prepares them for the snapshot).</td>
+          </tr>
+          <tr>
+            <td><code>git add .</code></td>
+            <td>Stages all new, modified, and deleted files in the entire project workspace.</td>
+          </tr>
+          <tr>
+            <td><code>git commit -m "message"</code></td>
+            <td>Seals staged changes into a permanent snapshot with an informative description.</td>
+          </tr>
+          <tr>
+            <td><code>git log --oneline</code></td>
+            <td>Displays a compact chronological list of commits in your project history.</td>
+          </tr>
+        </tbody>
+      </table>
+    </main>
+
+    <footer class="lesson-footer">
+      <div class="footer-source">
+        Reference Card for <a href="../lessons/0001-why-git-and-the-snapshot-model.html">Lesson 0001: Why Git & The Snapshot Model</a>.
+      </div>
+      <div>
+        <a href="../lessons/0001-why-git-and-the-snapshot-model.html" class="btn primary">← Back to Lesson 0001</a>
+      </div>
+    </footer>
+  </div>
+</body>
+</html>

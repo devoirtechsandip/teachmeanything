@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lesson 0001: Why Git & The Snapshot Model</title>
+  <link rel="stylesheet" href="../assets/style.css">
+  <style>
+    /* Specific styles for Lesson 0001 visual animation */
+    .animation-stage {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      min-height: 240px;
+    }
+
+    .file-box {
+      border: 2px dashed #94a3b8;
+      border-radius: 8px;
+      padding: 0.6rem 0.9rem;
+      font-size: 0.85rem;
+      background: var(--bg-card);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-family: var(--font-mono);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .file-box.active {
+      border-color: var(--git-orange);
+      background: var(--git-orange-light);
+      border-style: solid;
+      font-weight: 600;
+      transform: scale(1.05);
+    }
+
+    .file-box.linked {
+      border-color: #38bdf8;
+      background: #f0f9ff;
+      border-style: solid;
+      opacity: 0.85;
+    }
+
+    .snapshot-node {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.8rem 1.2rem;
+      border-radius: 12px;
+      background: var(--bg-card);
+      border: 2px solid var(--border-color);
+      box-shadow: var(--shadow-md);
+      transition: all 0.3s ease;
+      min-width: 170px;
+    }
+
+    .snapshot-node.highlight {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px var(--primary-light);
+      transform: translateY(-4px);
+    }
+
+    .snapshot-badge {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--git-orange);
+      text-transform: uppercase;
+      font-family: var(--font-mono);
+    }
+
+    .snapshot-files {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+      width: 100%;
+    }
+
+    .arrow-connect {
+      font-size: 1.5rem;
+      color: var(--text-muted);
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="lesson-header">
+      <div class="lesson-badge">Lesson 0001 • Core Foundations</div>
+      <h1>Why We Need Git: The Snapshot Time Machine</h1>
+      <p>Discover why developers rely on version control, how Git replaces chaotic folder backups with a bulletproof time machine, and how Git's snapshot model works under the hood.</p>
+    </header>
+
+    <main>
+      <!-- Section 1: The Why -->
+      <h2>1. The Problem: Life Before Version Control</h2>
+      <p>
+        Imagine you are working on a website project. You write some code that works. Then you want to try adding a new login feature, but you are terrified of breaking what you already built.
+      </p>
+      <p>
+        Without a tool like Git, developers used to do something like this on their desktop:
+      </p>
+
+      <div class="comparison-grid">
+        <div class="card bad">
+          <div class="card-title">⚠️ The "Folder Chaos" Nightmare</div>
+          <ul>
+            <li><code>my-project/</code></li>
+            <li><code>my-project-copy/</code></li>
+            <li><code>my-project-final/</code></li>
+            <li><code>my-project-final-v2/</code></li>
+            <li><code>my-project-FINAL-REALLY-WORKING-DONT-TOUCH.zip</code></li>
+          </ul>
+        </div>
+        <div class="card good">
+          <div class="card-title">✨ The Git Solution</div>
+          <ul>
+            <li>Exactly <strong>one single clean folder</strong> on your machine.</li>
+            <li>A built-in invisible database (the <code>.git</code> folder).</li>
+            <li>Instant time travel to any second in history.</li>
+            <li>Zero risk of overwriting or losing working work.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="callout orange">
+        <div class="callout-title">💡 Plain English Analogy: The Camera vs The Photocopier</div>
+        <p>
+          Making copies of entire project folders is like making 50 photocopies of a 400-page book every time you edit a typo on page 3. It fills up your desk with clutter and confusion.
+        </p>
+        <p>
+          <strong>Git is a high-speed digital camera.</strong> It stays quiet in your project folder. Whenever you reach a milestone, you tell Git: <em>"Take a picture of the project right now."</em> That photo is called a <strong>Commit</strong> (or snapshot). You can travel back to that exact state anytime in one second.
+        </p>
+      </div>
+
+      <!-- Section 2: How Git Solves It (The Snapshot Model) -->
+      <h2>2. How Git Thinks: Deltas vs. Snapshots</h2>
+      <p>
+        Most older version control systems (like SVN or CVS) stored code as <strong>deltas</strong> (a list of line-by-line file changes). If you wanted to see your project at version 5, the tool had to start at version 1 and calculate all five sets of differences line by line.
+      </p>
+      <p>
+        <strong>Git is fundamentally different: Git thinks in Stream of Snapshots.</strong>
+      </p>
+      <p>
+        Every commit in Git is a complete picture of what all your files look like at that moment. But here is the secret superpower that makes Git lightning-fast: <strong>if a file hasn't changed, Git doesn't save it again!</strong> It simply creates a lightweight pointer linking to the identical file it already saved.
+      </p>
+
+      <!-- Section 3: Interactive Animation -->
+      <h2>3. Interactive Concept Animation: See Snapshots in Action</h2>
+      <p>
+        Use the interactive animation below to watch how Git captures milestones, shares unchanged files, and enables safe time travel.
+      </p>
+
+      <div class="stage-container">
+        <div class="stage-header">
+          <div class="stage-title">Visualizing the Git Snapshot Model</div>
+          <div class="stage-controls">
+            <button id="prevBtn" class="btn">◀ Prev</button>
+            <button id="playBtn" class="btn primary">▶ Auto Play</button>
+            <button id="nextBtn" class="btn">Next ▶</button>
+            <button id="resetBtn" class="btn">Reset</button>
+          </div>
+        </div>
+
+        <div id="animCanvas" class="stage-canvas">
+          <!-- Animated content injected by JS -->
+        </div>
+
+        <div id="animExplanation" class="stage-explanation">
+          <!-- Explanation injected by JS -->
+        </div>
+      </div>
+
+      <!-- Section 4: Hands-on CLI Terminal Simulator -->
+      <h2>4. Your First Command Line (CLI) Experience</h2>
+      <p>
+        Your goal is terminal mastery. Git commands are run directly in your command line prompt. Let's practice the initial sequence developers run when starting a project:
+      </p>
+
+      <div class="terminal-window" id="terminalDemo">
+        <div class="terminal-header">
+          <div class="terminal-dots">
+            <span class="terminal-dot red"></span>
+            <span class="terminal-dot yellow"></span>
+            <span class="terminal-dot green"></span>
+          </div>
+          <div>zsh — ~/my-app (Git CLI Sandbox)</div>
+        </div>
+        <div class="terminal-body">
+          <div><span class="terminal-prompt">you@terminal:~/my-app$</span> <span class="terminal-cmd">ls -a</span></div>
+          <div class="terminal-output">.  ..  app.js  index.html</div>
+          <div style="color: #64748b; font-style: italic; margin-bottom: 0.5rem;"># Click the buttons below in order to simulate the real terminal commands:</div>
+        </div>
+        <div class="terminal-interactive-bar">
+          <span style="font-size: 0.8rem; color: #94a3b8; margin-right: 0.5rem;">Run Command:</span>
+          <button class="terminal-btn" onclick="term.execute('git init')">1. git init</button>
+          <button class="terminal-btn" onclick="term.execute('git status')">2. git status</button>
+          <button class="terminal-btn" onclick="term.execute('git add .')">3. git add .</button>
+          <button class="terminal-btn" onclick="term.execute('git commit -m &quot;Initial project snapshot&quot;')">4. git commit -m "..."</button>
+          <button class="terminal-btn" onclick="term.execute('git status')">5. git status (after commit)</button>
+        </div>
+      </div>
+
+      <div class="callout green">
+        <div class="callout-title">CLI Command Breakdown</div>
+        <ul style="padding-left: 1.2rem; margin-top: 0.4rem;">
+          <li><code>git init</code>: Creates the secret <code>.git</code> repository database right inside your project folder.</li>
+          <li><code>git status</code>: Tells you what Git is seeing right now (which files are edited, untracked, or ready to save).</li>
+          <li><code>git add .</code>: Gathers files into the "Staging Area" (putting them in front of the camera lens).</li>
+          <li><code>git commit -m "..."</code>: Snaps the photo and stores it permanently with a descriptive label.</li>
+        </ul>
+      </div>
+
+      <!-- Section 5: Retrieval Practice Quiz -->
+      <h2>5. Check Your Understanding (Retrieval Practice)</h2>
+      <p>Test your mental model. Answer the question below to solidify your long-term retention:</p>
+
+      <div class="quiz-box" id="quiz1">
+        <div class="quiz-header">
+          <span class="quiz-badge">Concept Check</span>
+          <span style="font-size: 0.85rem; color: var(--text-muted);">1 Question</span>
+        </div>
+        <div class="quiz-question">
+          How does Git handle unchanged files when creating a new commit snapshot?
+        </div>
+        <div class="quiz-options">
+          <button class="quiz-option">It creates completely fresh duplicated copies of every file.</button>
+          <button class="quiz-option">It links directly to the identical file already saved previously.</button>
+          <button class="quiz-option">It deletes all the older files and replaces them permanently.</button>
+          <button class="quiz-option">It compresses all project folders into an encrypted zip archive.</button>
+        </div>
+        <div class="quiz-feedback"></div>
+      </div>
+
+      <div class="quiz-box" id="quiz2" style="margin-top: 1.5rem;">
+        <div class="quiz-header">
+          <span class="quiz-badge">CLI Check</span>
+          <span style="font-size: 0.85rem; color: var(--text-muted);">1 Question</span>
+        </div>
+        <div class="quiz-question">
+          Which command turns an ordinary directory on your computer into a tracked Git repository?
+        </div>
+        <div class="quiz-options">
+          <button class="quiz-option">Executing git start to configure the local disk workspace.</button>
+          <button class="quiz-option">Executing git init to build the internal database archive.</button>
+          <button class="quiz-option">Executing git make to generate the initial directory cache.</button>
+          <button class="quiz-option">Executing git open to initialize tracking on working files.</button>
+        </div>
+        <div class="quiz-feedback"></div>
+      </div>
+
+      <!-- Section 6: Next Steps & Resources -->
+      <h2>6. Primary Source & Continuing Your Journey</h2>
+      <p>
+        To dive deeper into this fundamental mental model from the creators and maintainers of Git, consult our primary source:
+      </p>
+      <div class="callout">
+        <div class="callout-title">📖 Recommended Reading</div>
+        <p>
+          <a href="https://git-scm.com/book/en/v2/Getting-Started-About-Version-Control" target="_blank" rel="noopener noreferrer">
+            <strong>Pro Git (2nd Edition) — Chapter 1.1: Getting Started - About Version Control</strong>
+          </a><br>
+          Written by Scott Chacon and Ben Straub. Focus on the section comparing <em>"Snapshots, Not Differences"</em>.
+        </p>
+      </div>
+
+      <p>
+        Need a quick reference sheet to keep beside your terminal? Check out the newly compiled:
+        <br>
+        📄 <a href="../reference/01-why-and-core-mental-model.html"><strong>Quick Reference Card #01: Git Foundations & Core Mental Model</strong></a>.
+      </p>
+    </main>
+
+    <footer class="lesson-footer">
+      <div class="footer-source">
+        Git Mastery Curriculum • Lesson 0001
+      </div>
+      <div>
+        <span style="font-size: 0.9rem; color: var(--text-muted); margin-right: 0.8rem;">Have a question?</span>
+        <button class="btn primary" onclick="alert('Switch back to your chat prompt with Antigravity and ask any question! I am here to help guide you through every concept.')">Ask Your Agent Teacher</button>
+      </div>
+    </footer>
+  </div>
+
+  <script src="../assets/components.js"></script>
+  <script>
+    // Initialize Mini Terminal Simulator
+    const term = new MiniTerminalSimulator('terminalDemo');
+
+    // Initialize Quizzes
+    // Quiz 1: Option 2 is correct (index 1)
+    initQuiz('quiz1', {
+      correctIndex: 1,
+      explanation: 'Git is highly efficient: it does not re-copy unchanged files. It keeps an immutable snapshot by linking back to the previously stored file.'
+    });
+
+    // Quiz 2: Option 2 is correct (index 1)
+    initQuiz('quiz2', {
+      correctIndex: 1,
+      explanation: 'Running <code>git init</code> initializes the hidden <code>.git</code> directory, transforming the folder into a Git-managed repository.'
+    });
+
+    // Animated Simulation Stages Definition
+    const animationSteps = [
+      {
+        title: "The Old Manual Way (Desktop Folder Chaos)",
+        description: "Before Git, saving milestones meant copying entire folders: <code>my-project-v1</code>, <code>my-project-v2</code>. You waste storage, lose track of what changed, and easily overwrite code.",
+        html: `
+          <div style="display: flex; gap: 1.5rem; flex-wrap: wrap; justify-content: center; align-items: center;">
+            <div style="text-align: center; opacity: 0.6;">
+              <div style="font-size: 2.2rem;">📁</div>
+              <div style="font-size: 0.8rem; font-family: var(--font-mono);">project-v1/</div>
+            </div>
+            <div style="text-align: center; opacity: 0.8;">
+              <div style="font-size: 2.2rem;">📁</div>
+              <div style="font-size: 0.8rem; font-family: var(--font-mono);">project-v2/</div>
+            </div>
+            <div style="text-align: center; transform: scale(1.15);">
+              <div style="font-size: 2.5rem;">📁</div>
+              <div style="font-size: 0.8rem; font-weight: bold; font-family: var(--font-mono); color: #dc2626;">project-final-REALLY.zip</div>
+            </div>
+          </div>
+        `
+      },
+      {
+        title: "Commit #1: Git Takes the First Complete Snapshot",
+        description: "With Git, you run <code>git commit</code>. Git takes an immutable snapshot of all your files (<code>index.html</code>, <code>app.js</code>, <code>style.css</code>) and labels it <strong>Snapshot 1 (Commit A)</strong>.",
+        html: `
+          <div style="display: flex; justify-content: center; align-items: center; width: 100%;">
+            <div class="snapshot-node highlight">
+              <span class="snapshot-badge">Commit A (9a3e21b)</span>
+              <div style="font-size: 0.8rem; font-weight: 600; margin-bottom: 0.3rem;">"Initial project setup"</div>
+              <div class="snapshot-files">
+                <span class="file-box active">📄 index.html [v1]</span>
+                <span class="file-box active">📄 app.js [v1]</span>
+                <span class="file-box active">📄 style.css [v1]</span>
+              </div>
+            </div>
+          </div>
+        `
+      },
+      {
+        title: "Commit #2: Modifying Only One File (Smart Linking)",
+        description: "You edit <code>app.js</code> and commit again. Git creates <strong>Snapshot 2 (Commit B)</strong>. It saves the new <code>app.js [v2]</code>, but for <code>index.html</code> and <code>style.css</code>, it simply links back to Version 1! Fast and tiny.",
+        html: `
+          <div style="display: flex; gap: 1.5rem; justify-content: center; align-items: center; width: 100%; flex-wrap: wrap;">
+            <div class="snapshot-node" style="opacity: 0.7;">
+              <span class="snapshot-badge">Commit A</span>
+              <div class="snapshot-files">
+                <span class="file-box">📄 index.html [v1]</span>
+                <span class="file-box">📄 app.js [v1]</span>
+                <span class="file-box">📄 style.css [v1]</span>
+              </div>
+            </div>
+            <div class="arrow-connect">➔</div>
+            <div class="snapshot-node highlight">
+              <span class="snapshot-badge">Commit B (f48d910)</span>
+              <div style="font-size: 0.8rem; font-weight: 600; margin-bottom: 0.3rem;">"Add login handler"</div>
+              <div class="snapshot-files">
+                <span class="file-box linked">🔗 index.html [links to v1]</span>
+                <span class="file-box active" style="color: var(--git-orange);">📄 app.js [v2 NEW]</span>
+                <span class="file-box linked">🔗 style.css [links to v1]</span>
+              </div>
+            </div>
+          </div>
+        `
+      },
+      {
+        title: "Safe Time Travel: Jumping Across Snapshots",
+        description: "Need to test the original code from Commit A? Git doesn't scramble your disk. It simply shifts the <code>HEAD</code> pointer to Commit A. Your working files instantly revert. Shift back to Commit B whenever you wish!",
+        html: `
+          <div style="display: flex; flex-direction: column; align-items: center; gap: 0.75rem;">
+            <div style="padding: 0.3rem 0.8rem; background: var(--primary); color: white; border-radius: 20px; font-size: 0.8rem; font-weight: bold; font-family: var(--font-mono);">
+              HEAD (Current Checked Out Snapshot)
+            </div>
+            <div style="display: flex; gap: 1.5rem; justify-content: center; align-items: center; flex-wrap: wrap;">
+              <div class="snapshot-node highlight">
+                <span class="snapshot-badge">Commit A (HEAD is here!)</span>
+                <div class="snapshot-files">
+                  <span class="file-box active">📄 index.html [v1]</span>
+                  <span class="file-box active">📄 app.js [v1]</span>
+                </div>
+              </div>
+              <div class="arrow-connect">⇄</div>
+              <div class="snapshot-node" style="opacity: 0.6;">
+                <span class="snapshot-badge">Commit B</span>
+                <div class="snapshot-files">
+                  <span class="file-box">📄 index.html [v1]</span>
+                  <span class="file-box">📄 app.js [v2]</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        `
+      }
+    ];
+
+    const sim = new GitSnapshotSimulator('animCanvas', 'animExplanation', animationSteps);
+
+    document.getElementById('nextBtn').addEventListener('click', () => sim.next());
+    document.getElementById('prevBtn').addEventListener('click', () => sim.prev());
+    document.getElementById('resetBtn').addEventListener('click', () => {
+      sim.stop();
+      sim.goTo(0);
+      document.getElementById('playBtn').textContent = '▶ Auto Play';
+    });
+
+    const playBtn = document.getElementById('playBtn');
+    playBtn.addEventListener('click', () => {
+      if (sim.isPlaying) {
+        sim.stop();
+        playBtn.textContent = '▶ Auto Play';
+      } else {
+        sim.play();
+        playBtn.textContent = '⏸ Pause';
+      }
+    });
+  </script>
+</body>
+</html>
