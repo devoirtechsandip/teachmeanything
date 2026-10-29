@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,61 +10,89 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 0.5rem;
-      padding: 1.25rem;
-      background: var(--bg-card);
-      border: 1px solid var(--border-color);
+      gap: 0.75rem;
+      padding: 1.5rem;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-card);
       border-radius: var(--radius-md);
-      margin: 1.5rem 0;
+      margin: 1.75rem 0;
       flex-wrap: wrap;
     }
     .state-pill {
-      padding: 0.5rem 0.9rem;
-      border-radius: 6px;
+      padding: 0.55rem 1rem;
+      border-radius: var(--radius-sm);
       font-weight: 700;
       font-size: 0.85rem;
       text-transform: uppercase;
       font-family: var(--font-mono);
     }
-    .state-untracked { background: #fee2e2; color: #b91c1c; }
-    .state-modified { background: #fef3c7; color: #b45309; }
-    .state-staged { background: #dcfce7; color: #15803d; }
-    .state-committed { background: #dbeafe; color: #1d4ed8; }
+    .state-untracked { background: var(--accent-rose-subtle); color: var(--accent-rose); border: 1px solid rgba(244, 63, 94, 0.3); }
+    .state-modified { background: var(--accent-amber-subtle); color: var(--accent-amber); border: 1px solid rgba(245, 158, 11, 0.3); }
+    .state-staged { background: var(--accent-emerald-subtle); color: var(--accent-emerald); border: 1px solid rgba(16, 185, 129, 0.3); }
+    .state-committed { background: var(--accent-cyan-subtle); color: var(--accent-cyan); border: 1px solid rgba(56, 189, 248, 0.3); }
+    
     .cmd-table {
       width: 100%;
       border-collapse: collapse;
-      margin: 1.5rem 0;
+      margin: 1.75rem 0;
       font-size: 0.95rem;
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      border: 1px solid var(--border-card);
     }
     .cmd-table th, .cmd-table td {
-      border: 1px solid var(--border-color);
-      padding: 0.75rem 1rem;
+      border: 1px solid var(--border-subtle);
+      padding: 0.85rem 1.15rem;
       text-align: left;
     }
     .cmd-table th {
-      background: var(--bg-card-alt);
+      background: var(--bg-surface-elevated);
+      color: var(--text-primary);
       font-weight: 700;
+    }
+    .cmd-table td {
+      background: var(--bg-surface);
+      color: var(--text-secondary);
     }
     .cmd-table code {
       font-family: var(--font-mono);
-      background: var(--primary-light);
-      color: var(--primary);
-      padding: 0.15rem 0.4rem;
+      background: var(--git-orange-subtle);
+      color: var(--git-orange);
+      padding: 0.2rem 0.5rem;
       border-radius: 4px;
       font-size: 0.88rem;
     }
   </style>
 </head>
 <body>
+  <div id="topProgressBar" class="top-progress-bar"></div>
+
+  <nav class="sticky-nav">
+    <a href="../lessons/0002-the-three-areas-and-first-commit.html" class="nav-brand">
+      <svg class="nav-logo-icon" viewBox="0 0 24 24">
+        <path d="M21.62 10.74l-8.36-8.36a2.04 2.04 0 0 0-2.88 0l-2 2a.37.37 0 0 0 0 .52l2.42 2.42a1.8 1.8 0 0 1 .53-.08 1.87 1.87 0 0 1 1.87 1.87 1.84 1.84 0 0 1-.58 1.34l2.49 2.5a1.86 1.86 0 0 1 1.32-.57 1.87 1.87 0 1 1-1.87 1.87 1.83 1.83 0 0 1 .49-1.24l-2.37-2.37v5.27a1.88 1.88 0 1 1-1.25 0V8.71a1.85 1.85 0 0 1-.95-.62L7.96 5.62l-5.58 5.58a2.04 2.04 0 0 0 0 2.88l8.36 8.36a2.04 2.04 0 0 0 2.88 0l8-8a2.04 2.04 0 0 0 0-2.88z"/>
+      </svg>
+      <span>Git Reference Hub</span>
+    </a>
+
+    <div class="nav-controls">
+      <a href="../lessons/0002-the-three-areas-and-first-commit.html" class="btn" style="padding: 0.4rem 0.85rem; font-size: 0.82rem;">Lesson 0002</a>
+      <button id="themeToggleBtn" class="theme-toggle-btn" onclick="toggleTheme()" title="Switch Theme">🌙</button>
+    </div>
+  </nav>
+
   <div class="container">
     <header class="lesson-header">
-      <div class="lesson-badge">Quick Reference Card #02</div>
+      <div class="badge-wrapper">
+        <span class="lesson-badge">Quick Reference Card #02</span>
+        <span class="meta-pill">📋 Printable Cheat Sheet</span>
+      </div>
       <h1>The Three Areas & The Staging Workflow</h1>
       <p>A fast-reference guide for navigating the Working Tree, Index/Staging Area, and Git Commit History.</p>
     </header>
 
     <main>
-      <h2>1. The File Lifecycle in Git</h2>
+      <h2><span class="section-num">1</span> The File Lifecycle in Git</h2>
       <div class="lifecycle-diagram">
         <div class="state-pill state-untracked">Untracked</div>
         <div style="font-weight: bold; color: var(--text-muted);">➔ git add ➔</div>
@@ -75,7 +103,7 @@
         <div class="state-pill state-modified">Modified</div>
       </div>
 
-      <h2>2. Understanding the Three Areas</h2>
+      <h2><span class="section-num">2</span> Understanding the Three Areas</h2>
       <table class="cmd-table">
         <thead>
           <tr>
@@ -103,7 +131,7 @@
         </tbody>
       </table>
 
-      <h2>3. Staging & Committing CLI Commands</h2>
+      <h2><span class="section-num">3</span> Staging & Committing CLI Commands</h2>
       <table class="cmd-table">
         <thead>
           <tr>
@@ -153,5 +181,6 @@
       </div>
     </footer>
   </div>
+  <script src="../assets/components.js"></script>
 </body>
 </html>

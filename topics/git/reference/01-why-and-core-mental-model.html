@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,57 +9,91 @@
     .ref-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 1rem;
-      margin: 1.5rem 0;
+      gap: 1.25rem;
+      margin: 1.75rem 0;
     }
     .ref-box {
-      border: 1px solid var(--border-color);
+      border: 1px solid var(--border-card);
       border-radius: var(--radius-md);
-      background: var(--bg-card);
-      padding: 1.25rem;
+      background: var(--bg-surface);
+      padding: 1.4rem;
+      transition: var(--transition-smooth);
+    }
+    .ref-box:hover {
+      transform: translateY(-2px);
+      border-color: var(--border-hover);
+      box-shadow: var(--shadow-md);
     }
     .ref-box h3 {
       margin-top: 0;
       color: var(--git-orange);
-      font-size: 1rem;
-      border-bottom: 1px solid var(--border-color);
-      padding-bottom: 0.4rem;
+      font-size: 1.05rem;
+      border-bottom: 1px solid var(--border-subtle);
+      padding-bottom: 0.5rem;
     }
     .cmd-table {
       width: 100%;
       border-collapse: collapse;
-      margin: 1.5rem 0;
+      margin: 1.75rem 0;
       font-size: 0.95rem;
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      border: 1px solid var(--border-card);
     }
     .cmd-table th, .cmd-table td {
-      border: 1px solid var(--border-color);
-      padding: 0.75rem 1rem;
+      border: 1px solid var(--border-subtle);
+      padding: 0.85rem 1.15rem;
       text-align: left;
     }
     .cmd-table th {
-      background: var(--bg-card-alt);
+      background: var(--bg-surface-elevated);
+      color: var(--text-primary);
       font-weight: 700;
+    }
+    .cmd-table td {
+      background: var(--bg-surface);
+      color: var(--text-secondary);
     }
     .cmd-table code {
       font-family: var(--font-mono);
-      background: var(--primary-light);
-      color: var(--primary);
-      padding: 0.15rem 0.4rem;
+      background: var(--git-orange-subtle);
+      color: var(--git-orange);
+      padding: 0.2rem 0.5rem;
       border-radius: 4px;
       font-size: 0.88rem;
     }
   </style>
 </head>
 <body>
+  <div id="topProgressBar" class="top-progress-bar"></div>
+
+  <nav class="sticky-nav">
+    <a href="../lessons/0001-why-git-and-the-snapshot-model.html" class="nav-brand">
+      <svg class="nav-logo-icon" viewBox="0 0 24 24">
+        <path d="M21.62 10.74l-8.36-8.36a2.04 2.04 0 0 0-2.88 0l-2 2a.37.37 0 0 0 0 .52l2.42 2.42a1.8 1.8 0 0 1 .53-.08 1.87 1.87 0 0 1 1.87 1.87 1.84 1.84 0 0 1-.58 1.34l2.49 2.5a1.86 1.86 0 0 1 1.32-.57 1.87 1.87 0 1 1-1.87 1.87 1.83 1.83 0 0 1 .49-1.24l-2.37-2.37v5.27a1.88 1.88 0 1 1-1.25 0V8.71a1.85 1.85 0 0 1-.95-.62L7.96 5.62l-5.58 5.58a2.04 2.04 0 0 0 0 2.88l8.36 8.36a2.04 2.04 0 0 0 2.88 0l8-8a2.04 2.04 0 0 0 0-2.88z"/>
+      </svg>
+      <span>Git Reference Hub</span>
+    </a>
+
+    <div class="nav-controls">
+      <a href="../lessons/0001-why-git-and-the-snapshot-model.html" class="btn" style="padding: 0.4rem 0.85rem; font-size: 0.82rem;">Lesson 0001</a>
+      <a href="../lessons/0002-the-three-areas-and-first-commit.html" class="btn" style="padding: 0.4rem 0.85rem; font-size: 0.82rem;">Lesson 0002</a>
+      <button id="themeToggleBtn" class="theme-toggle-btn" onclick="toggleTheme()" title="Switch Theme">🌙</button>
+    </div>
+  </nav>
+
   <div class="container">
     <header class="lesson-header">
-      <div class="lesson-badge">Quick Reference Card #01</div>
+      <div class="badge-wrapper">
+        <span class="lesson-badge">Quick Reference Card #01</span>
+        <span class="meta-pill">📋 Printable Cheat Sheet</span>
+      </div>
       <h1>Git Foundations & Core Mental Model</h1>
       <p>A compressed cheat sheet of the fundamental reasons for version control, Git's snapshot mechanics, and essential Day 1 terminal commands.</p>
     </header>
 
     <main>
-      <h2>1. The "Why": What Git Solves</h2>
+      <h2><span class="section-num">1</span> The "Why": What Git Solves</h2>
       <div class="ref-grid">
         <div class="ref-box">
           <h3>1. Time Travel</h3>
@@ -79,15 +113,15 @@
         </div>
       </div>
 
-      <h2>2. The "How": Git's Snapshot Model</h2>
+      <h2><span class="section-num">2</span> The "How": Git's Snapshot Model</h2>
       <p>Unlike older version control systems (like SVN or CVS) that stored a base file plus lists of line-by-line differences (deltas), <strong>Git thinks in snapshots</strong>:</p>
-      <ul>
+      <ul style="padding-left: 1.4rem; color: var(--text-secondary); line-height: 1.75; margin-bottom: 1.5rem;">
         <li>Every time you commit, Git takes a picture of what all your files look like at that exact moment and stores a reference to that snapshot.</li>
         <li>To be extremely fast and efficient, if a file has not changed, Git does not store the file again—it simply links directly to the identical file it already stored.</li>
         <li>Everything in Git is checksummed using cryptographic hashes before it is stored, making it mathematically impossible to alter history undetected.</li>
       </ul>
 
-      <h2>3. The Three Areas (Mental Map)</h2>
+      <h2><span class="section-num">3</span> The Three Areas (Mental Map)</h2>
       <table class="cmd-table">
         <thead>
           <tr>
@@ -115,7 +149,7 @@
         </tbody>
       </table>
 
-      <h2>4. Fundamental Day 1 CLI Commands</h2>
+      <h2><span class="section-num">4</span> Fundamental Day 1 CLI Commands</h2>
       <table class="cmd-table">
         <thead>
           <tr>
@@ -161,5 +195,6 @@
       </div>
     </footer>
   </div>
+  <script src="../assets/components.js"></script>
 </body>
 </html>
