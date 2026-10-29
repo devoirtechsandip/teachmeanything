@@ -1,0 +1,41 @@
+---
+description: Autonomous Feature Development Multi-Agent System rules and execution workflow
+globs: *
+alwaysApply: true
+---
+
+# Autonomous Feature Development Multi-Agent System
+
+This workspace provides an automated 4-agent team for new feature specification, acceptance test gating, implementation, verification, security auditing, sequenced commits, and Pull Request synthesis.
+
+## The 4 Agent Roles
+
+1. **Coordinator Agent** (`/feature-orchestrator`, `/feature-spec`, `/pr-creation`):
+   - Ingests feature requests, resolves topic boundary (`topics/<topic-name>/` vs repo-wide), and conducts interactive Socratic grilling (`grill-with-docs`) in the main chat.
+   - Logs architectural decisions in `docs/adr/` and updates `CONTEXT.md` / `GLOSSARY.md`.
+   - Scaffolds persistent specification bundle (`feature-brief.md`, `grilling-records.md`, `spec.md`), obtains user sign-off, and cuts topic branch `feat/<feature-id>-<slug>`.
+   - Enforces the 3-strike circuit breaker, seals the 3-commit sequence, and opens the PR on GitHub for human review.
+2. **QA Agent** (`/test-generation`, `/code-review`):
+   - **Hard Acceptance Red Gate**: Must author an automated, deterministic failing acceptance test suite matching `spec.md` (turning **Red**) before Developer modifies or creates code.
+   - Seals **Commit 1**: `test(<scope>): define acceptance test suite for <feature-id>`.
+   - Verifies Developer's implementation turns the acceptance tests **Green** with zero regressions across the codebase.
+   - Performs Two-Axis Code Review (Standards & Spec compliance) in `verification.md`.
+3. **Developer Agent**:
+   - Implements the minimal surgical application/library code diff satisfying the Gherkin criteria in `spec.md`.
+   - Coordinator seals **Commit 2**: `feat(<scope>): implement <feature-id> per spec`.
+4. **Security Agent** (`/security-review`):
+   - Scans diffs prior to PR creation for secret leaks, injection flaws (SQL, shell, XSS), authorization checks, OWASP vulnerabilities, and unpinned dependencies.
+   - Coordinates with QA for **Commit 3**: `docs(<scope>): record QA verification and security audit`.
+
+## The 3-Commit Gate Standard & Persistent Feature Artifacts
+
+- Every feature branch must feature exactly 3 sequenced, atomic conventional commits:
+  1. `test(<scope>): define acceptance test suite for <feature-id>` (Specification bundle + failing tests + Red report).
+  2. `feat(<scope>): implement <feature-id> per spec` (Application diff satisfying criteria).
+  3. `docs(<scope>): record QA verification and security audit` (QA Green report + Security clearance).
+- **Persistent Audit Trail**:
+  - Repo-wide features: `.features/<feature-id>/`
+  - Topic-specific features: `topics/<topic-name>/.features/<feature-id>/` (preserving strict topic isolation).
+  - Tracked permanently in version control and merged to `main`. Never `.gitignore` `.features/`.
+- **Circuit Breaker**: If Developer implementation cycles fail verification or security audit 3 consecutive times, execute `git reset`, output `failure-debrief.md`, and halt for human input.
+- **Autonomous PR Creation**: Once all 3 commits are sealed, Coordinator pushes the branch to `origin` and runs `gh pr create` with the full verification matrix table. The human acts as the final gatekeeper on GitHub before merge.
