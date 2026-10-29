@@ -51,3 +51,23 @@ When a user initiates or resumes a session (e.g., "teach me git", "let's continu
    - Save all learning records strictly to `topics/<topic-name>/learning-records/`.
    - Record canonical terms strictly in `topics/<topic-name>/GLOSSARY.md`.
    - Save cheat sheets/reference cards strictly to `topics/<topic-name>/reference/`.
+
+---
+
+## 3. Bug Triage & Resolution Agent Team
+
+When working on defect resolution, triage, or running `/triage-orchestrator`:
+
+1. **The 4 Agent Roles**:
+   - **Coordinator Agent**: Oversees workflow, intake sanitization (`/bug-triage`), ephemeral workspace (`.triage/<issue-id>/`), and gated PR creation (`/pr-creation`).
+   - **QA Agent**: Responsible for the Hard Red Gate reproduction test (`/test-generation`), Green verification, and Two-Axis Code Review (`/code-review`).
+   - **Developer Agent**: Performs Root Cause Analysis (3–5 hypotheses) and authoring minimal fixes (`/diagnosing-bugs`).
+   - **Security Agent**: Pre-commit secret scanning, injection auditing, and OWASP review (`/security-review`).
+2. **Hub-and-Spoke Invariant**:
+   - Subagents communicate solely through the Coordinator; no unmediated peer-to-peer discussions.
+3. **The Red Gate Invariant**:
+   - Developer is strictly barred from editing application code until QA produces an automated failing test (Red).
+4. **Circuit Breaker**:
+   - 3-iteration fix budget. On the 3rd failure, the Coordinator executes `git reset`, writes a Failure Debrief, and halts for user consultation.
+5. **Human Approval Gate**:
+   - PRs are prepared locally; `git push` and `gh pr create` require explicit human sign-off.

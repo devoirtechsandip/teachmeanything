@@ -9,3 +9,5 @@ See [AGENTS.md](./AGENTS.md) for the complete multi-topic policy.
 - Never read, cross-reference, or leak files between different topic directories.
 - All `/teach` and `/teachme` workflows must resolve paths inside `topics/<topic-name>/`.
 - Store lessons in `topics/<topic-name>/lessons/` and learning records in `topics/<topic-name>/learning-records/`.
+- For bug triage & resolution, follow the 4-agent team workflow (Coordinator, QA, Developer, Security) defined in `AGENTS.md` and orchestrated via `/triage-orchestrator`.
+- Enforce the Hard QA-First Red Gate: no production code changes until a deterministic failing reproduction test is verified.

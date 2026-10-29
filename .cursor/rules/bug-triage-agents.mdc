@@ -1,0 +1,32 @@
+---
+description: Autonomous Bug Triage & Resolution Multi-Agent System rules and execution workflow
+globs: *
+alwaysApply: true
+---
+
+# Autonomous Bug Triage & Resolution Multi-Agent System
+
+This workspace provides an automated 4-agent team for issue triage, reproduction, root-cause diagnosis, verification, security auditing, and Pull Request synthesis.
+
+## The 4 Agent Roles
+
+1. **Coordinator Agent** (`/bug-triage`, `/pr-creation`, `/triage-orchestrator`):
+   - Ingests defect reports, sanitizes credentials, validates minimal reproduction inputs, and creates `.triage/<issue-id>/triage-brief.md`.
+   - Dispatches tasks to QA, Developer, and Security in a Hub-and-Spoke supervisor model.
+   - Enforces the 3-strike circuit breaker and stages atomic PR branches after user approval.
+2. **QA Agent** (`/test-generation`, `/code-review`):
+   - **Hard Invariant (The Red Gate)**: Must generate a deterministic failing test script or command (turning **Red**) before the Developer modifies code.
+   - Verifies the Developer's fix turns the Red test **Green** with zero regressions across the repository test suite.
+   - Performs Two-Axis Code Review (Standards & Spec).
+3. **Developer Agent** (`/diagnosing-bugs`):
+   - Formulates 3–5 falsifiable hypotheses against the code seam.
+   - Applies the minimal surgical fix to satisfy the reproduction test without introducing side effects.
+4. **Security Agent** (`/security-review`):
+   - Scans diffs prior to PR creation for secret leaks, injection flaws, OWASP vulnerabilities, and unpinned dependencies.
+
+## Artifact Contract & Safety Rules
+
+- All intermediate handoffs are stored in `.triage/<issue-id>/` (`triage-brief.md`, `reproduce.sh`, `rca.md`, `qa-report.md`, `security-audit.md`).
+- Never stage or commit `.triage/` to git (enforced via `.gitignore`).
+- **Circuit Breaker**: If Developer fix cycles fail verification or security audit 3 consecutive times, execute `git reset`, output `failure-debrief.md`, and halt for human input.
+- **Human Sign-off**: Always confirm with the user before executing `git push` or `gh pr create`.
