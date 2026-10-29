@@ -1,6 +1,6 @@
 # TeachMeAnything Learning Hub
 
-A structured, multi-topic personal learning workspace powered by Matt Pocock's **`teach`** / **`teachme`** skill. Compatible with **Google Antigravity**, **Cursor**, and **GitHub Copilot**.
+A structured, multi-topic personal learning workspace powered by Matt Pocock's **`teach`** / **`teachme`** skill and real-world engineering agent skills. Compatible with **Google Antigravity**, **Cursor**, and **GitHub Copilot**.
 
 ---
 
@@ -15,16 +15,24 @@ teachmeanything/
 ├── .agents/                   # Universal & Antigravity skills and rules
 │   ├── rules/
 │   │   └── topic-isolation.md
-│   └── skills/
+│   └── skills/                # Full suite of agent skills (Antigravity & universal)
+│       ├── unslop/
+│       ├── grill-with-docs/
+│       ├── grill-me/
+│       ├── grilling/
+│       ├── domain-modeling/
+│       ├── scaffold-exercises/
+│       ├── to-spec/
+│       ├── to-tickets/
+│       ├── code-review/
+│       ├── diagnosing-bugs/
+│       ├── handoff/
+│       ├── improve-codebase-architecture/
 │       ├── teach/
 │       └── teachme/
-├── .cursor/                   # Cursor rules & skills
-│   ├── rules/
-│   │   └── topic-isolation.mdc
-│   └── skills/
-├── .github/                   # GitHub Copilot instructions & skills
-│   ├── copilot-instructions.md
-│   └── skills/
+├── .cursor/                   # Cursor rules & mirrored skills
+├── .github/                   # GitHub Copilot instructions & mirrored skills
+├── skills-lock.json           # Lockfile tracking installed skills and integrity hashes
 └── topics/
     ├── git/                   # Active Topic: Git Mastery
     │   ├── MISSION.md         # Topic goals, boundaries, and success criteria
@@ -41,6 +49,27 @@ teachmeanything/
     │
     └── _template/             # Starter template for adding new topics
 ```
+
+---
+
+## 🛠️ Agent Skills Arsenal
+
+This repository is equipped with curated agent skills to support educational authoring, architectural stress-testing, and rigorous engineering:
+
+| Skill | Source | Purpose | Trigger / Usage |
+| :--- | :--- | :--- | :--- |
+| **`teach`** / **`teachme`** | `mattpocock/skills` | Guides stateful, multi-session learning with interactive lessons, learning records, and glossary grounding. | `teach me <topic>` or `/teach <topic>` |
+| **`unslop`** | `cursor/plugins` (`pstack`) | Cuts AI tells, corporate puffery, superficial `-ing` phrases, and robotic crutches (banning em-dashes, mid-sentence colons, chatbot phrases, and abstract jargon) in favor of concrete mechanics and plain speech. | `/unslop`, `"cut AI tells"`, `"humanize this"` |
+| **`grill-with-docs`** | `mattpocock/skills` | Socratic interview that stress-tests a plan, design, or lesson curriculum branch-by-branch while actively updating `GLOSSARY.md` and logging Architecture Decision Records (ADRs). | `/grill-with-docs <topic/plan>` |
+| **`grill-me`** / **`grilling`** | `mattpocock/skills` | Socratic interrogation engine that queries decisions along the active frontier round-by-round to uncover unstated assumptions and edge cases. | `/grill-me <concept/plan>` |
+| **`domain-modeling`** | `mattpocock/skills` | Actively establishes ubiquitous domain vocabulary in `GLOSSARY.md` / `CONTEXT.md` and captures architectural decisions as ADRs. | Invoked during design or via `/grill-with-docs` |
+| **`scaffold-exercises`** | `mattpocock/skills` | Generates standardized exercise directory trees with `problem/`, `solution/`, and `explainer/` subdirectories and starter stubs. | `/scaffold-exercises <name>` |
+| **`to-spec`** | `mattpocock/skills` | Synthesizes conversational alignment and architectural decisions into an unambiguous technical specification before writing code. | `/to-spec <title>` |
+| **`to-tickets`** | `mattpocock/skills` | Breaks down specs into vertical-slice (tracer bullet) tickets with explicit dependency blocking edges sized for single agent sessions. | `/to-tickets <spec>` |
+| **`code-review`** | `mattpocock/skills` | Disciplined two-axis review evaluating diffs across **Standards** (conventions) and **Spec** (requirements) independently against a fixed ref. | `/code-review [git-ref]` |
+| **`diagnosing-bugs`** | `mattpocock/skills` | Gated 6-phase root-cause debugging workflow (*"No red-capable command, no Phase 2"*). | `"diagnose this"`, `"fix this bug"` |
+| **`handoff`** | `mattpocock/skills` | Compacts active conversation state, active frontiers, and immediate next steps into an OS temp document for seamless multi-session handover. | `/handoff` |
+| **`improve-codebase-architecture`** | `mattpocock/skills` | Audits codebase and topic boundaries, identifies duplication or coupling, and proposes structured refactorings. | `"improve architecture"`, `"audit repo"` |
 
 ---
 
