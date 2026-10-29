@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Git Reference: The Three Areas & Staging Workflow</title>
+  <link rel="stylesheet" href="../assets/style.css">
+  <style>
+    .lifecycle-diagram {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      padding: 1.25rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      margin: 1.5rem 0;
+      flex-wrap: wrap;
+    }
+    .state-pill {
+      padding: 0.5rem 0.9rem;
+      border-radius: 6px;
+      font-weight: 700;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      font-family: var(--font-mono);
+    }
+    .state-untracked { background: #fee2e2; color: #b91c1c; }
+    .state-modified { background: #fef3c7; color: #b45309; }
+    .state-staged { background: #dcfce7; color: #15803d; }
+    .state-committed { background: #dbeafe; color: #1d4ed8; }
+    .cmd-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1.5rem 0;
+      font-size: 0.95rem;
+    }
+    .cmd-table th, .cmd-table td {
+      border: 1px solid var(--border-color);
+      padding: 0.75rem 1rem;
+      text-align: left;
+    }
+    .cmd-table th {
+      background: var(--bg-card-alt);
+      font-weight: 700;
+    }
+    .cmd-table code {
+      font-family: var(--font-mono);
+      background: var(--primary-light);
+      color: var(--primary);
+      padding: 0.15rem 0.4rem;
+      border-radius: 4px;
+      font-size: 0.88rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="lesson-header">
+      <div class="lesson-badge">Quick Reference Card #02</div>
+      <h1>The Three Areas & The Staging Workflow</h1>
+      <p>A fast-reference guide for navigating the Working Tree, Index/Staging Area, and Git Commit History.</p>
+    </header>
+
+    <main>
+      <h2>1. The File Lifecycle in Git</h2>
+      <div class="lifecycle-diagram">
+        <div class="state-pill state-untracked">Untracked</div>
+        <div style="font-weight: bold; color: var(--text-muted);">➔ git add ➔</div>
+        <div class="state-pill state-staged">Staged</div>
+        <div style="font-weight: bold; color: var(--text-muted);">➔ git commit ➔</div>
+        <div class="state-pill state-committed">Committed</div>
+        <div style="font-weight: bold; color: var(--text-muted);">➔ edit file ➔</div>
+        <div class="state-pill state-modified">Modified</div>
+      </div>
+
+      <h2>2. Understanding the Three Areas</h2>
+      <table class="cmd-table">
+        <thead>
+          <tr>
+            <th>Area</th>
+            <th>Underlying Path</th>
+            <th>Role in Workflow</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Working Tree</strong></td>
+            <td>Your local folder files</td>
+            <td>The files you see and edit in your IDE. Where experimental, uncommitted work lives.</td>
+          </tr>
+          <tr>
+            <td><strong>Staging Area (Index)</strong></td>
+            <td><code>.git/index</code></td>
+            <td>The staging buffer. Holds the exact files and versions prepared to join the next snapshot.</td>
+          </tr>
+          <tr>
+            <td><strong>Git Repository</strong></td>
+            <td><code>.git/objects/</code></td>
+            <td>The permanent, content-addressed database of sealed commits and tree graphs.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2>3. Staging & Committing CLI Commands</h2>
+      <table class="cmd-table">
+        <thead>
+          <tr>
+            <th>Command</th>
+            <th>Effect & Best Practice</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>git status</code></td>
+            <td>Shows uncommitted files categorized by untracked (red), modified (red), or staged (green).</td>
+          </tr>
+          <tr>
+            <td><code>git status -s</code></td>
+            <td>Compact two-column status output (<code>??</code> = untracked, <code>M </code> = staged, <code> M</code> = unstaged).</td>
+          </tr>
+          <tr>
+            <td><code>git add &lt;file&gt;</code></td>
+            <td>Stages an individual file. Best practice: use explicit file paths for focused, atomic commits.</td>
+          </tr>
+          <tr>
+            <td><code>git add .</code></td>
+            <td>Stages all changes in the current directory and subdirectories.</td>
+          </tr>
+          <tr>
+            <td><code>git restore --staged &lt;file&gt;</code></td>
+            <td>Un-stages a file, moving it back from Staging Area to Working Tree without losing any code.</td>
+          </tr>
+          <tr>
+            <td><code>git commit -m "message"</code></td>
+            <td>Records the staged snapshot permanently with a clear descriptive message.</td>
+          </tr>
+          <tr>
+            <td><code>git commit -v</code></td>
+            <td>Opens your terminal editor showing the exact diff of what you are committing.</td>
+          </tr>
+        </tbody>
+      </table>
+    </main>
+
+    <footer class="lesson-footer">
+      <div class="footer-source">
+        Reference Card for <a href="../lessons/0002-the-three-areas-and-first-commit.html">Lesson 0002: The Three Areas of Git</a>.
+      </div>
+      <div>
+        <a href="../lessons/0002-the-three-areas-and-first-commit.html" class="btn primary">← Back to Lesson 0002</a>
+      </div>
+    </footer>
+  </div>
+</body>
+</html>

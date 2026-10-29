@@ -167,3 +167,141 @@ class MiniTerminalSimulator {
     this.historyEl.scrollTop = this.historyEl.scrollHeight;
   }
 }
+
+// 4. Three Trees Pipeline Simulator (Working Tree -> Staging Area -> Repository)
+class ThreeTreesPipelineSimulator {
+  constructor(containerId) {
+    this.container = document.getElementById(containerId);
+    if (!container) return;
+    this.wtEl = this.container.querySelector('#wtColumn .tree-body');
+    this.saEl = this.container.querySelector('#saColumn .tree-body');
+    this.repoEl = this.container.querySelector('#repoColumn .tree-body');
+    this.infoEl = this.container.querySelector('#pipelineInfo');
+
+    this.files = {
+      'index.html': { status: 'untracked' },
+      'styles.css': { status: 'untracked' },
+      'app.js': { status: 'untracked' }
+    };
+    this.stagedFiles = {};
+    this.commits = [];
+    this.render();
+  }
+
+  setInfo(msg) {
+    if (this.infoEl) {
+      this.infoEl.innerHTML = msg;
+    }
+  }
+
+  render() {
+    // Render Working Tree
+    if (this.wtEl) {
+      this.wtEl.innerHTML = '';
+      const fileNames = Object.keys(this.files);
+      if (fileNames.length === 0) {
+        this.wtEl.innerHTML = '<div style="color: var(--text-muted); font-size: 0.85rem; font-style: italic;">Working tree clean (no uncommitted edits).</div>';
+      } else {
+        fileNames.forEach(name => {
+          const file = this.files[name];
+          const div = document.createElement('div');
+          div.className = `file-item ${file.status}`;
+          div.innerHTML = `<span>📄 ${name}</span> <span class="file-status-pill">${file.status}</span>`;
+          this.wtEl.appendChild(div);
+        });
+      }
+    }
+
+    // Render Staging Area (Index)
+    if (this.saEl) {
+      this.saEl.innerHTML = '';
+      const stagedNames = Object.keys(this.stagedFiles);
+      if (stagedNames.length === 0) {
+        this.saEl.innerHTML = '<div style="color: var(--text-muted); font-size: 0.85rem; font-style: italic;">Staging area empty. Use <code>git add</code> to prepare files.</div>';
+      } else {
+        stagedNames.forEach(name => {
+          const div = document.createElement('div');
+          div.className = 'file-item staged';
+          div.innerHTML = `<span>✓ ${name}</span> <span class="file-status-pill">staged</span>`;
+          this.saEl.appendChild(div);
+        });
+      }
+    }
+
+    // Render Repository (Commits)
+    if (this.repoEl) {
+      this.repoEl.innerHTML = '';
+      if (this.commits.length === 0) {
+        this.repoEl.innerHTML = '<div style="color: var(--text-muted); font-size: 0.85rem; font-style: italic;">No commits yet. Commit staged changes to form history.</div>';
+      } else {
+        this.commits.forEach(c => {
+          const div = document.createElement('div');
+          div.className = 'file-item committed';
+          div.innerHTML = `<div><strong>${c.hash}</strong>: ${c.msg}<div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 2px;">files: ${c.files.join(', ')}</div></div>`;
+          this.repoEl.appendChild(div);
+        });
+      }
+    }
+  }
+
+  editFile(name) {
+    this.files[name] = { status: 'modified' };
+    this.setInfo(`✏️ Modified <code>${name}</code> in the Working Tree. Notice it is flagged in yellow as <strong>modified</strong>, but NOT staged yet!`);
+    this.render();
+  }
+
+  addFile(name) {
+    if (!this.files[name]) {
+      this.setInfo(`File <code>${name}</code> is not modified.`);
+      return;
+    }
+    this.stagedFiles[name] = true;
+    delete this.files[name];
+    this.setInfo(`📥 Ran <code>git add ${name}</code>: <code>${name}</code> moved into the <strong>Staging Area</strong> (ready for next snapshot).`);
+    this.render();
+  }
+
+  addAll() {
+    const keys = Object.keys(this.files);
+    if (keys.length === 0) {
+      this.setInfo(`Nothing to add. Working tree has no un-staged modifications.`);
+      return;
+    }
+    keys.forEach(k => {
+      this.stagedFiles[k] = true;
+    });
+    this.files = {};
+    this.setInfo(`📥 Ran <code>git add .</code>: All uncommitted files moved into the <strong>Staging Area</strong>.`);
+    this.render();
+  }
+
+  commit(msg) {
+    const stagedNames = Object.keys(this.stagedFiles);
+    if (stagedNames.length === 0) {
+      this.setInfo(`⚠️ Cannot commit: Staging area is completely empty! Run <code>git add</code> first.`);
+      return;
+    }
+    const hash = Math.random().toString(16).substring(2, 9);
+    this.commits.unshift({
+      hash: hash,
+      msg: msg,
+      files: [...stagedNames]
+    });
+    this.stagedFiles = {};
+    this.setInfo(`📸 Ran <code>git commit -m "${msg}"</code>: Created permanent snapshot <code>${hash}</code> in Git Repository! Staging area cleared.`);
+    this.render();
+  }
+
+  reset() {
+    this.files = {
+      'index.html': { status: 'untracked' },
+      'styles.css': { status: 'untracked' },
+      'app.js': { status: 'untracked' }
+    };
+    this.stagedFiles = {};
+    this.commits = [];
+    this.setInfo(`🔄 Reset playground state to initial uncommitted files.`);
+    this.render();
+  }
+}
+

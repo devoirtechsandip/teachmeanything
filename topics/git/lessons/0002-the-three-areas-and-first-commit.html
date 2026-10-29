@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lesson 0002: The Three Areas of Git & Your First Commit</title>
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+  <div class="container">
+    <header class="lesson-header">
+      <div class="lesson-badge">Lesson 0002 • Core Architecture</div>
+      <h1>The Three Areas of Git: Working Tree, Staging Area, and History</h1>
+      <p>Understand the engine behind every Git command: why Git uses an intermediate Staging Area, how files transition between states, and how to craft clean, atomic commits from the terminal.</p>
+    </header>
+
+    <main>
+      <!-- Section 1: The Big Question -->
+      <h2>1. The #1 Beginner Question: Why Does Git Need "git add"?</h2>
+      <p>
+        When beginners first encounter Git, they almost always ask:
+      </p>
+      <blockquote style="margin: 1rem 0; padding: 0.8rem 1.2rem; border-left: 4px solid var(--primary); background: var(--primary-light); font-style: italic; color: var(--text-primary); border-radius: 4px;">
+        "If I already saved my file in VS Code or Notepad, why can't Git just commit it? Why do I have to run <code>git add</code> before <code>git commit</code>?"
+      </blockquote>
+
+      <p>
+        The answer is the secret to why professional developers love Git: <strong>The Staging Area gives you precision and control.</strong>
+      </p>
+
+      <div class="callout orange">
+        <div class="callout-title">📦 Plain English Analogy: The Shipping Box</div>
+        <p>
+          Think of your project folder like a room in your house, and a commit like mailing a parcel to a customer.
+        </p>
+        <p>
+          When you are working, your room might be messy. You might be writing code for a login button, tweaking CSS colors, and testing a database script. You don't want to mail your entire messy room!
+        </p>
+        <p>
+          Instead, you place an open cardboard shipping box in the middle of the room. That shipping box is the <strong>Staging Area</strong> (also called the <em>Index</em>).
+        </p>
+        <p>
+          When you run <code>git add login.js</code>, you place only the login code into the box. Then you tape the box shut and slap a label on it by running <code>git commit -m "feat: add user login"</code>. Your commit is clean, focused, and purposeful.
+        </p>
+      </div>
+
+      <!-- Section 2: The Three Areas Explained -->
+      <h2>2. The Three Areas (Mental Map)</h2>
+      <p>Git manages your code across three distinct physical spaces on your hard drive:</p>
+
+      <div class="comparison-grid">
+        <div class="card">
+          <div class="card-title">1. Working Tree (Local Workspace)</div>
+          <p style="font-size: 0.9rem; color: var(--text-secondary);">
+            The actual files on your machine that you view, create, edit, or delete in your editor. These changes are temporary and uncommitted.
+          </p>
+          <span style="font-family: var(--font-mono); font-size: 0.8rem; background: #fee2e2; color: #b91c1c; padding: 0.15rem 0.5rem; border-radius: 4px; font-weight: 600;">Status: Untracked or Modified</span>
+        </div>
+
+        <div class="card">
+          <div class="card-title">2. Staging Area (The Index)</div>
+          <p style="font-size: 0.9rem; color: var(--text-secondary);">
+            A hidden binary file (<code>.git/index</code>) that stores a preview of what your next commit will contain. Populated using <code>git add</code>.
+          </p>
+          <span style="font-family: var(--font-mono); font-size: 0.8rem; background: #dcfce7; color: #15803d; padding: 0.15rem 0.5rem; border-radius: 4px; font-weight: 600;">Status: Staged</span>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top: 1rem;">
+        <div class="card-title">3. Git Repository (Object Database)</div>
+        <p style="font-size: 0.9rem; color: var(--text-secondary);">
+          The permanent archive inside <code>.git/objects/</code>. Once you commit, Git locks the staged files into an immutable snapshot with a unique cryptographic hash (SHA). This is your official history.
+        </p>
+        <span style="font-family: var(--font-mono); font-size: 0.8rem; background: #dbeafe; color: #1d4ed8; padding: 0.15rem 0.5rem; border-radius: 4px; font-weight: 600;">Status: Committed</span>
+      </div>
+
+      <!-- Section 3: Interactive Pipeline Animation -->
+      <h2>3. Interactive Pipeline: Move Files Across the Three Areas</h2>
+      <p>
+        Try this interactive simulator! Watch how files move from your Working Tree, through the Staging Area, and into your Git Repository.
+      </p>
+
+      <div class="stage-container" id="pipelineWidget">
+        <div class="stage-header">
+          <div class="stage-title">Interactive Three-Area Flow</div>
+          <button class="btn" onclick="pipeline.reset()">🔄 Reset Playground</button>
+        </div>
+
+        <div class="pipeline-actions-bar">
+          <button class="btn" onclick="pipeline.editFile('app.js')">1. Edit app.js (Working Tree)</button>
+          <button class="btn primary" onclick="pipeline.addFile('app.js')">2. git add app.js</button>
+          <button class="btn" onclick="pipeline.addAll()">3. git add . (Stage All)</button>
+          <button class="btn primary" onclick="pipeline.commit('feat: implement login logic')">4. git commit -m "..."</button>
+        </div>
+
+        <div id="pipelineInfo" class="stage-explanation" style="margin-bottom: 1.25rem;">
+          💡 Click <strong>1. Edit app.js</strong> above to start making changes in your Working Tree!
+        </div>
+
+        <div class="three-trees-board">
+          <!-- Col 1: Working Tree -->
+          <div class="tree-column" id="wtColumn">
+            <div class="tree-header">
+              <div class="tree-col-title">
+                <span>Working Tree</span>
+                <span class="tree-col-badge">Local Disk</span>
+              </div>
+              <div class="tree-col-desc">Files you edit in your editor</div>
+            </div>
+            <div class="tree-body"></div>
+          </div>
+
+          <!-- Col 2: Staging Area -->
+          <div class="tree-column" id="saColumn">
+            <div class="tree-header">
+              <div class="tree-col-title">
+                <span>Staging Area</span>
+                <span class="tree-col-badge">.git/index</span>
+              </div>
+              <div class="tree-col-desc">Prepared for next snapshot</div>
+            </div>
+            <div class="tree-body"></div>
+          </div>
+
+          <!-- Col 3: Repository -->
+          <div class="tree-column" id="repoColumn">
+            <div class="tree-header">
+              <div class="tree-col-title">
+                <span>Repository</span>
+                <span class="tree-col-badge">.git/objects</span>
+              </div>
+              <div class="tree-col-desc">Permanent sealed commits</div>
+            </div>
+            <div class="tree-body"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 4: Hands-on Real Terminal Lab -->
+      <h2>4. Hands-on CLI Lab: Run This on Your Computer!</h2>
+      <p>
+        Now let's build your muscle memory. Open your Mac terminal (or VS Code terminal) and follow these exact steps:
+      </p>
+
+      <div class="callout green">
+        <div class="callout-title">Step-by-Step Terminal Commands</div>
+        <ol style="padding-left: 1.3rem; margin-top: 0.5rem; line-height: 1.8;">
+          <li><strong>Create a practice sandbox folder:</strong><br>
+            <code>mkdir ~/git-sandbox && cd ~/git-sandbox</code>
+          </li>
+          <li><strong>Initialize Git:</strong><br>
+            <code>git init</code><br>
+            <em style="font-size: 0.85rem; color: var(--text-muted);">Notice: Git creates the hidden <code>.git</code> database.</em>
+          </li>
+          <li><strong>Check the status:</strong><br>
+            <code>git status</code><br>
+            <em style="font-size: 0.85rem; color: var(--text-muted);">Git tells you: "nothing to commit (create/copy files and use 'git add' to track)".</em>
+          </li>
+          <li><strong>Create two new files:</strong><br>
+            <code>echo "# My Project" > README.md</code><br>
+            <code>echo "console.log('hello');" > app.js</code>
+          </li>
+          <li><strong>Run status again:</strong><br>
+            <code>git status</code><br>
+            <em style="font-size: 0.85rem; color: var(--text-muted);">Both files appear in red under "Untracked files".</em>
+          </li>
+          <li><strong>Stage only the README:</strong><br>
+            <code>git add README.md</code>
+          </li>
+          <li><strong>Run status again to see the magic:</strong><br>
+            <code>git status</code><br>
+            <em style="font-size: 0.85rem; color: var(--text-muted);">README.md is green ("Changes to be committed"), while app.js is still red ("Untracked files")!</em>
+          </li>
+          <li><strong>Commit the staged snapshot:</strong><br>
+            <code>git commit -m "docs: add initial project readme"</code>
+          </li>
+          <li><strong>View your permanent history:</strong><br>
+            <code>git log --oneline</code>
+          </li>
+        </ol>
+      </div>
+
+      <!-- Section 5: Retrieval Practice Quiz -->
+      <h2>5. Check Your Understanding</h2>
+      <p>Solidify your storage strength with these targeted retrieval questions:</p>
+
+      <div class="quiz-box" id="quizLesson2_1">
+        <div class="quiz-header">
+          <span class="quiz-badge">Concept Check</span>
+          <span style="font-size: 0.85rem; color: var(--text-muted);">1 Question</span>
+        </div>
+        <div class="quiz-question">
+          What is the primary technical purpose of the Git Staging Area?
+        </div>
+        <div class="quiz-options">
+          <button class="quiz-option">It allows fine-grained selection of which changes join the next commit.</button>
+          <button class="quiz-option">It automatically uploads code to remote hosting servers on the internet.</button>
+          <button class="quiz-option">It compresses source code files to conserve memory on local hard drives.</button>
+          <button class="quiz-option">It encrypts proprietary application passwords before storing in database.</button>
+        </div>
+        <div class="quiz-feedback"></div>
+      </div>
+
+      <div class="quiz-box" id="quizLesson2_2" style="margin-top: 1.5rem;">
+        <div class="quiz-header">
+          <span class="quiz-badge">CLI Syntax Check</span>
+          <span style="font-size: 0.85rem; color: var(--text-muted);">1 Question</span>
+        </div>
+        <div class="quiz-question">
+          When files appear highlighted in green during git status, what state are they in?
+        </div>
+        <div class="quiz-options">
+          <button class="quiz-option">They are modified on the local disk but omitted from staging.</button>
+          <button class="quiz-option">They are staged in the index and ready to be committed next.</button>
+          <button class="quiz-option">They are rejected by repository rules due to syntax errors.</button>
+          <button class="quiz-option">They are deleted from the disk and archived into backup logs.</button>
+        </div>
+        <div class="quiz-feedback"></div>
+      </div>
+
+      <!-- Section 6: Recommended Primary Source & Navigation -->
+      <h2>6. Primary Source & Reference</h2>
+      <div class="callout">
+        <div class="callout-title">📖 Recommended Reading</div>
+        <p>
+          <a href="https://git-scm.com/book/en/v2/Git-Basics-Recording-Changes-to-the-Repository" target="_blank" rel="noopener noreferrer">
+            <strong>Pro Git (2nd Edition) — Chapter 2.2: Git Basics - Recording Changes to the Repository</strong>
+          </a><br>
+          By Scott Chacon and Ben Straub. Focus on the lifecycle of file states: Untracked, Unmodified, Modified, and Staged.
+        </p>
+      </div>
+
+      <p>
+        Check the companion reference cards:
+        <br>
+        📄 <a href="../reference/02-the-three-areas-and-staging.html"><strong>Quick Reference Card #02: The Three Areas & Staging Workflow</strong></a>
+        <br>
+        📄 <a href="../reference/01-why-and-core-mental-model.html"><strong>Quick Reference Card #01: Git Foundations & Core Mental Model</strong></a>
+      </p>
+    </main>
+
+    <footer class="lesson-footer">
+      <div>
+        <a href="0001-why-git-and-the-snapshot-model.html" class="btn">← Lesson 0001</a>
+      </div>
+      <div class="footer-source">
+        Git Mastery Curriculum • Lesson 0002
+      </div>
+      <div>
+        <button class="btn primary" onclick="alert('Switch back to Antigravity chat and tell me how the terminal lab went, or ask any question!')">Ask Your Agent Teacher</button>
+      </div>
+    </footer>
+  </div>
+
+  <script src="../assets/components.js"></script>
+  <script>
+    // Initialize Three Trees Pipeline Simulator
+    const pipeline = new ThreeTreesPipelineSimulator('pipelineWidget');
+
+    // Initialize Quizzes
+    // Quiz 1: Option 1 is correct (index 0)
+    initQuiz('quizLesson2_1', {
+      correctIndex: 0,
+      explanation: 'The staging area (index) acts as a formatting buffer where you can assemble precise, atomic commits rather than dumping all workspace edits at once.'
+    });
+
+    // Quiz 2: Option 2 is correct (index 1)
+    initQuiz('quizLesson2_2', {
+      correctIndex: 1,
+      explanation: 'In <code>git status</code> output, green indicates changes that have been added to the staging area and are queued up for the next commit snapshot.'
+    });
+  </script>
+</body>
+</html>

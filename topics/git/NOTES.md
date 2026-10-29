@@ -10,9 +10,9 @@ Working scratchpad for capturing user preferences, pacing insights, and curricul
 
 ## Curated Curriculum Roadmap (From Basic to Advanced)
 1. **Module 1: The First Principles (Why & How)**
-   - *Lesson 0001 (Current)*: Why We Need Git & The Snapshot Time Machine (Folder Chaos vs Git Snapshots).
-   - *Lesson 0002*: The 3 Areas of Git: Working Directory, Staging Area, and Commit History.
-   - *Lesson 0003*: First CLI Hands-on: `git init`, `git status`, `git add`, and your first `git commit`.
+   - *Lesson 0001 (Completed)*: Why We Need Git & The Snapshot Time Machine (Folder Chaos vs Git Snapshots).
+   - *Lesson 0002 (Completed)*: The 3 Areas of Git: Working Directory, Staging Area, and Commit History.
+   - *Lesson 0003 (Next)*: First Real Commit Cycle & Inspecting History with `git log` and `git diff`.
 
 2. **Module 2: The Daily Workflow & Inspecting History**
    - *Lesson 0004*: Making atomic commits, writing great commit messages, and `git log`.
