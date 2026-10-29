@@ -10,6 +10,7 @@ This document establishes canonical terminology and ubiquitous language for the 
 - **Reproduction Invariant**: Hard QA-First Red Gate per [ADR 0003](file:///workspaces/teachmeanything/docs/adr/0003-hard-qa-first-reproduction-gate.md).
 - **Team Structure**: 4-Agent Team with Dedicated Security Specialist per [ADR 0004](file:///workspaces/teachmeanything/docs/adr/0004-dedicated-security-agent.md).
 - **Operational Lifecycle**: 3-Strike Circuit Breaker, Ephemeral `.triage/<issue-id>/` artifacts, and Gated PR creation per [ADR 0005](file:///workspaces/teachmeanything/docs/adr/0005-operational-lifecycle-and-circuit-breaker.md).
+- **Sequenced Commits & Audit History**: Early topic branch creation, 3-Commit Gate Standard, persistent `.triage/` tracking, and automated PR opening for human review per [ADR 0007](file:///workspaces/teachmeanything/docs/adr/0007-sequenced-commit-git-lifecycle-and-persistent-triage.md).
 - **Cross-IDE Distribution**: Full parity across Antigravity (`.agents/`), Cursor (`.cursor/`), and GitHub Copilot (`.github/`) per [ADR 0006](file:///workspaces/teachmeanything/docs/adr/0006-multi-ide-agent-parity.md).
 
 ---
@@ -35,6 +36,8 @@ This document establishes canonical terminology and ubiquitous language for the 
 | **Targeted Debugging & Fix** | Surgical instrumentation (narrow traces/assertions) without polluting production code or leaking sensitive credentials/data, applying the minimal diff to turn Red to Green. |
 | **Two-Axis Review (`code-review`)** | Independent validation across **Axis A (Standards)** (repository idioms, cleanliness, maintainability) and **Axis B (Spec)** (does it fix the exact issue without scope creep?). |
 | **Security Review (`security-review`)** | Automated audit for credential leaks, injection vulnerabilities, privilege escalation, or unintended attack surface introduced during the bug fix. |
+| **Sequenced Commit Lifecycle** | Strict progression of atomic, conventional git commits sealing each gate: (1) Red reproduction + triage, (2) Root cause analysis + code fix, (3) Green verification + security audit. |
+| **Persistent Triage Artifacts** | Version-controlled diagnostic records (`.triage/<issue-id>/`) committed directly to the topic branch, providing an immutable audit trail of the resolution. |
 | **PR Creation (`pr-creation`)** | Automated generation of a clean git branch, atomic commit, and PR description linking root cause, reproduction test evidence, and passing CI verification. |
 
 ---
@@ -48,20 +51,35 @@ This document establishes canonical terminology and ubiquitous language for the 
             [Coordinator: Bug Triage] ──── (Incomplete Info) ──► [Halt & Request Clarification]
                       │
                       ▼
-           [QA: Red Reproduction Gate] ──── (Failed > 3x) ──────► [Halt & Escalate to User]
-                      │ (Deterministic Red Command)
-                      ▼
-           [Developer: RCA & Minimal Fix]
-                      │ (Proposed Diff)
-                      ▼
-       [QA: Green Verification & Two-Axis Review] ── (Rejected) ──► [Developer: Refine Fix]
-                      │ (Passed Verification)
-                      ▼
-           [Security Agent: Audit] ──────────────── (Flagged) ───► [Developer: Remediate Security]
-                      │ (Approved)
-                      ▼
-           [Coordinator: PR Creation]
+            (Create Topic Branch: fix/<issue-id>-<slug>)
                       │
                       ▼
-                [PR Ready]
+           [QA: Red Reproduction Gate] ──── (Failed > 3x) ──────► [Delete Branch & Halt]
+                      │
+                      ▼
+            (Commit 1: test(<scope>): reproduce <issue-id> failure)
+                      │
+                      ▼
+         ┌──► [Developer: RCA & Minimal Fix]
+         │             │
+         │             ▼
+         │    [QA: Green Verification & Two-Axis Review] ──► (Rejected) ──┐
+         │             │ (Passed)                                         │
+         │             ▼                                                  │
+         │    [Security Agent: Pre-Commit Audit] ─────────► (Vulnerable) ─┘
+         │             │ (Approved)                         (Retry Budget < 3)
+         │             ▼
+         └─── (Iterative Fix Cycle)
+                       │ (All Passed)
+                       ▼
+            (Commit 2: fix(<scope>): resolve <root-cause> + rca.md)
+                       │
+                       ▼
+            (Commit 3: docs(<scope>): record QA verification & security audit)
+                       │
+                       ▼
+            [Coordinator: Push Branch & Open PR for Human Review]
+                       │
+                       ▼
+            [PR Ready on GitHub]
 ```

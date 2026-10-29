@@ -1,6 +1,6 @@
 ---
 name: bug-triage
-description: Systematically ingest, sanitize, classify, and scope incoming software defect and issue reports.
+description: Systematically ingest, sanitize, classify, and scope incoming software defect and issue reports, and initialize the isolated fix branch.
 argument-hint: "<issue-description, error-log, or issue-number>"
 disable-model-invocation: true
 origin: "workflow/triage-team (MIT)"
@@ -8,11 +8,11 @@ origin: "workflow/triage-team (MIT)"
 
 # Bug Triage
 
-Systematically ingest, sanitize, and scope incoming software defect reports before assigning work to diagnostic and verification agents.
+Systematically ingest, sanitize, and scope incoming software defect reports, initialize the dedicated topic branch, and prepare the triage workspace before assigning tasks to diagnostic and verification agents.
 
 ## Responsibilities & Constraints
 - **Role**: Executed by the **Coordinator Agent**.
-- **Boundaries**: Focuses strictly on intake, data hygiene, and defect boundary definition. Does **not** write code fixes or reproduction tests directly.
+- **Boundaries**: Focuses strictly on intake, data hygiene, defect boundary definition, and branch isolation. Does **not** write code fixes or reproduction tests directly.
 
 ---
 
@@ -41,9 +41,10 @@ Check whether the report contains the minimum viable information required for re
 - **Affected Subsystem**: Identify suspected modules, libraries, or service seams.
 - **Non-Goals**: Explicitly list items that are out of scope for this defect to prevent scope creep during fixing.
 
-### Step 4: Workspace Scaffolding
-Create the ephemeral workspace directory for this triage run:
+### Step 4: Topic Branch Initialization & Workspace Scaffolding
+Per [ADR 0007](file:///workspaces/teachmeanything/docs/adr/0007-sequenced-commit-git-lifecycle-and-persistent-triage.md), isolate work immediately on a dedicated topic branch:
 ```bash
+git checkout -b fix/<issue-id>-<slug>
 mkdir -p .triage/<issue-id>
 ```
 Write `.triage/<issue-id>/triage-brief.md` containing:
@@ -67,3 +68,4 @@ Write `.triage/<issue-id>/triage-brief.md` containing:
 ## Explicit Non-Goals
 - [What not to touch]
 ```
+*(If QA subsequently proves the bug irreproducible within 3 attempts, Coordinator switches back to `main` and deletes this local topic branch).*
