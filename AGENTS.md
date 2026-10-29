@@ -59,15 +59,21 @@ When a user initiates or resumes a session (e.g., "teach me git", "let's continu
 When working on defect resolution, triage, or running `/triage-orchestrator`:
 
 1. **The 4 Agent Roles**:
-   - **Coordinator Agent**: Oversees workflow, intake sanitization (`/bug-triage`), ephemeral workspace (`.triage/<issue-id>/`), and gated PR creation (`/pr-creation`).
-   - **QA Agent**: Responsible for the Hard Red Gate reproduction test (`/test-generation`), Green verification, and Two-Axis Code Review (`/code-review`).
-   - **Developer Agent**: Performs Root Cause Analysis (3–5 hypotheses) and authoring minimal fixes (`/diagnosing-bugs`).
+   - **Coordinator Agent**: Oversees workflow, intake sanitization (`/bug-triage`), early topic branch creation (`fix/<issue-id>-<slug>`), persistent triage records (`.triage/<issue-id>/`), and automated PR synthesis (`/pr-creation`).
+   - **QA Agent**: Responsible for the Hard Red Gate reproduction test and Commit 1 (`/test-generation`), Green verification, and Two-Axis Code Review (`/code-review`).
+   - **Developer Agent**: Performs Root Cause Analysis (3–5 hypotheses) and authoring minimal fixes + Commit 2 (`/diagnosing-bugs`).
    - **Security Agent**: Pre-commit secret scanning, injection auditing, and OWASP review (`/security-review`).
 2. **Hub-and-Spoke Invariant**:
    - Subagents communicate solely through the Coordinator; no unmediated peer-to-peer discussions.
 3. **The Red Gate Invariant**:
    - Developer is strictly barred from editing application code until QA produces an automated failing test (Red).
-4. **Circuit Breaker**:
+4. **The 3-Commit Gate Standard & Persistent Triage**:
+   - Every bug fix branch must feature exactly 3 sequenced, atomic conventional commits:
+     - **Commit 1**: `test(<scope>): reproduce <issue-id> failure (Red Gate)` (Triage brief + reproduction script + Red report).
+     - **Commit 2**: `fix(<scope>): resolve <root-cause> in <components>` (Application diff + RCA document).
+     - **Commit 3**: `docs(<scope>): record QA verification and security audit` (QA Green report + Security clearance).
+   - `.triage/<issue-id>/` is permanently tracked in version control and merged to `main`. Never `.gitignore` `.triage/`.
+5. **Circuit Breaker**:
    - 3-iteration fix budget. On the 3rd failure, the Coordinator executes `git reset`, writes a Failure Debrief, and halts for user consultation.
-5. **Human Approval Gate**:
-   - PRs are prepared locally; `git push` and `gh pr create` require explicit human sign-off.
+6. **PR Creation & Human Review**:
+   - Once all 3 commits are sealed, Coordinator pushes to `origin` and opens a PR via `gh pr create` with the full verification matrix table. The human acts as the final gatekeeper on GitHub before merge.

@@ -11,3 +11,4 @@ See [AGENTS.md](./AGENTS.md) for the complete multi-topic policy.
 - Store lessons in `topics/<topic-name>/lessons/` and learning records in `topics/<topic-name>/learning-records/`.
 - For bug triage & resolution, follow the 4-agent team workflow (Coordinator, QA, Developer, Security) defined in `AGENTS.md` and orchestrated via `/triage-orchestrator`.
 - Enforce the Hard QA-First Red Gate: no production code changes until a deterministic failing reproduction test is verified.
+- Enforce the 3-Commit Gate Standard: early branch creation `fix/<issue-id>-<slug>`, 3 sequenced conventional commits (reproduce, fix, verify), persistent `.triage/` tracking, and automated PR creation for human review.

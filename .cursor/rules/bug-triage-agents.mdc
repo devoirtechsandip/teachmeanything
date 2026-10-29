@@ -6,27 +6,33 @@ alwaysApply: true
 
 # Autonomous Bug Triage & Resolution Multi-Agent System
 
-This workspace provides an automated 4-agent team for issue triage, reproduction, root-cause diagnosis, verification, security auditing, and Pull Request synthesis.
+This workspace provides an automated 4-agent team for issue triage, reproduction, root-cause diagnosis, verification, security auditing, sequenced commits, and Pull Request synthesis.
 
 ## The 4 Agent Roles
 
 1. **Coordinator Agent** (`/bug-triage`, `/pr-creation`, `/triage-orchestrator`):
-   - Ingests defect reports, sanitizes credentials, validates minimal reproduction inputs, and creates `.triage/<issue-id>/triage-brief.md`.
+   - Ingests defect reports, sanitizes credentials, validates minimal reproduction inputs, cuts the early topic branch `fix/<issue-id>-<slug>`, and creates `.triage/<issue-id>/triage-brief.md`.
    - Dispatches tasks to QA, Developer, and Security in a Hub-and-Spoke supervisor model.
-   - Enforces the 3-strike circuit breaker and stages atomic PR branches after user approval.
+   - Enforces the 3-strike circuit breaker, seals the 3-commit sequence, and opens the PR on GitHub for human review.
 2. **QA Agent** (`/test-generation`, `/code-review`):
-   - **Hard Invariant (The Red Gate)**: Must generate a deterministic failing test script or command (turning **Red**) before the Developer modifies code.
-   - Verifies the Developer's fix turns the Red test **Green** with zero regressions across the repository test suite.
+   - **Hard Invariant (The Red Gate)**: Must generate a deterministic failing test script or command (turning **Red**) before Developer modifies code.
+   - Seals **Commit 1**: `test(<scope>): reproduce <issue-id> failure (Red Gate)`.
+   - Verifies Developer's fix turns the Red test **Green** with zero regressions across the repository test suite.
    - Performs Two-Axis Code Review (Standards & Spec).
 3. **Developer Agent** (`/diagnosing-bugs`):
-   - Formulates 3–5 falsifiable hypotheses against the code seam.
+   - Formulates 3–5 falsifiable hypotheses against the code seam in `rca.md`.
    - Applies the minimal surgical fix to satisfy the reproduction test without introducing side effects.
+   - Coordinator seals **Commit 2**: `fix(<scope>): resolve <root-cause> in <components>`.
 4. **Security Agent** (`/security-review`):
    - Scans diffs prior to PR creation for secret leaks, injection flaws, OWASP vulnerabilities, and unpinned dependencies.
+   - Coordinates with QA for **Commit 3**: `docs(<scope>): record QA verification and security audit`.
 
-## Artifact Contract & Safety Rules
+## The 3-Commit Gate Standard & Persistent Triage
 
-- All intermediate handoffs are stored in `.triage/<issue-id>/` (`triage-brief.md`, `reproduce.sh`, `rca.md`, `qa-report.md`, `security-audit.md`).
-- Never stage or commit `.triage/` to git (enforced via `.gitignore`).
+- Every bug fix branch must feature exactly 3 sequenced, atomic conventional commits:
+  1. `test(<scope>): reproduce <issue-id> failure (Red Gate)` (Triage brief + repro script + Red report).
+  2. `fix(<scope>): resolve <root-cause> in <components>` (Application diff + RCA document).
+  3. `docs(<scope>): record QA verification and security audit` (QA Green report + Security clearance).
+- **Persistent Audit Trail**: `.triage/<issue-id>/` is permanently tracked in version control and merged into `main`. Never `.gitignore` `.triage/`.
 - **Circuit Breaker**: If Developer fix cycles fail verification or security audit 3 consecutive times, execute `git reset`, output `failure-debrief.md`, and halt for human input.
-- **Human Sign-off**: Always confirm with the user before executing `git push` or `gh pr create`.
+- **Autonomous PR Creation**: Once all 3 commits are sealed, Coordinator pushes the branch to `origin` and runs `gh pr create` with the full verification matrix table. The human acts as the final gatekeeper on GitHub before merge.
