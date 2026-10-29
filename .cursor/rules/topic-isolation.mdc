@@ -1,0 +1,14 @@
+---
+description: Enforce strict topic isolation for teach skills and learning workspaces
+globs: *
+alwaysApply: true
+---
+
+# Topic Isolation Rule
+
+This workspace organizes distinct learning topics under `topics/<topic-name>/` (e.g., `topics/git/`, `topics/dotnet/`).
+
+## Agent Behavior Mandate:
+1. **Isolation**: Every topic is self-contained. Never read, reference, cross-link, or leak learning records, mission items, or glossaries from one topic to another.
+2. **Scoping**: When working on a topic (or invoking `/teach` / `/teachme`), resolve all relative paths (`MISSION.md`, `RESOURCES.md`, `GLOSSARY.md`, `lessons/`, `learning-records/`) strictly within `topics/<topic-name>/`.
+3. **New Topics**: When a new topic is started, instantiate it from `topics/_template/` into `topics/<topic-name>/`.
