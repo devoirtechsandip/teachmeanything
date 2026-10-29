@@ -200,7 +200,7 @@ class GitSnapshotSimulator {
 class MiniTerminalSimulator {
   constructor(containerId) {
     this.container = document.getElementById(containerId);
-    if (!container) return;
+    if (!this.container) return;
     this.historyEl = this.container.querySelector('.terminal-body');
     this.state = {
       initialized: false,
@@ -270,7 +270,7 @@ class MiniTerminalSimulator {
 class ThreeTreesPipelineSimulator {
   constructor(containerId) {
     this.container = document.getElementById(containerId);
-    if (!container) return;
+    if (!this.container) return;
     this.wtEl = this.container.querySelector('#wtColumn .tree-body');
     this.saEl = this.container.querySelector('#saColumn .tree-body');
     this.repoEl = this.container.querySelector('#repoColumn .tree-body');
