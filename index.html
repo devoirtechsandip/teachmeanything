@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TeachMeAnything | Interactive Learning Hub</title>
+  <link rel="stylesheet" href="./topics/git/assets/style.css">
+  <style>
+    /* Learning Hub Landing Page Styles */
+    .hub-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2.5rem 1.5rem;
+    }
+
+    .hub-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 2rem;
+      border-bottom: 1px solid var(--border-subtle);
+      margin-bottom: 3rem;
+    }
+
+    .hub-brand {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+      text-decoration: none;
+      color: var(--text-primary);
+    }
+
+    .hub-brand-logo {
+      width: 44px;
+      height: 44px;
+      border-radius: var(--radius-sm);
+      background: linear-gradient(135deg, var(--git-orange), var(--accent-indigo));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      box-shadow: 0 0 20px var(--git-orange-glow);
+    }
+
+    .hub-brand-title {
+      font-size: 1.35rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    .hub-brand-subtitle {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+    }
+
+    .hub-nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .hero-banner {
+      text-align: center;
+      padding: 2.5rem 1rem 4rem 1rem;
+      max-width: 860px;
+      margin: 0 auto;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.4rem 1rem;
+      border-radius: var(--radius-pill);
+      background: var(--git-orange-subtle);
+      border: 1px solid var(--git-orange);
+      color: var(--git-orange);
+      font-size: 0.82rem;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 0 15px var(--git-orange-glow);
+    }
+
+    .hero-title {
+      font-size: 3rem;
+      font-weight: 800;
+      line-height: 1.15;
+      letter-spacing: -0.03em;
+      margin-bottom: 1.25rem;
+      background: linear-gradient(180deg, var(--text-primary) 0%, var(--text-secondary) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-description {
+      font-size: 1.15rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      margin-bottom: 2rem;
+    }
+
+    .topic-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+      gap: 2rem;
+      margin-bottom: 4rem;
+    }
+
+    .topic-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-card);
+      border-radius: var(--radius-lg);
+      padding: 2rem;
+      box-shadow: var(--shadow-md);
+      transition: var(--transition-smooth);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .topic-card:hover {
+      border-color: var(--border-hover);
+      box-shadow: var(--shadow-lg);
+      transform: translateY(-4px);
+    }
+
+    .topic-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.25rem;
+    }
+
+    .topic-badge {
+      font-size: 0.75rem;
+      font-family: var(--font-mono);
+      padding: 0.25rem 0.65rem;
+      border-radius: var(--radius-pill);
+      font-weight: 600;
+    }
+
+    .topic-badge-active {
+      background: var(--accent-emerald-subtle);
+      color: var(--accent-emerald);
+      border: 1px solid var(--accent-emerald);
+    }
+
+    .topic-badge-upcoming {
+      background: var(--accent-amber-subtle);
+      color: var(--accent-amber);
+      border: 1px solid var(--accent-amber);
+    }
+
+    .topic-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 0.6rem;
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+    }
+
+    .topic-desc {
+      font-size: 0.95rem;
+      color: var(--text-secondary);
+      line-height: 1.55;
+      margin-bottom: 1.75rem;
+    }
+
+    .lesson-section-title {
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      font-weight: 700;
+      margin-bottom: 0.85rem;
+    }
+
+    .lesson-list {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 1.5rem 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+    }
+
+    .lesson-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.75rem 1rem;
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      text-decoration: none;
+      color: var(--text-primary);
+      transition: var(--transition-smooth);
+    }
+
+    .lesson-item:hover {
+      border-color: var(--git-orange);
+      background: var(--git-orange-subtle);
+      transform: translateX(4px);
+    }
+
+    .lesson-item-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .lesson-status-pill {
+      font-size: 0.72rem;
+      font-family: var(--font-mono);
+      padding: 0.2rem 0.55rem;
+      border-radius: var(--radius-pill);
+      background: var(--bg-surface);
+      color: var(--text-secondary);
+    }
+
+    .ref-links-box {
+      margin-top: auto;
+      padding-top: 1.25rem;
+      border-top: 1px solid var(--border-subtle);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.65rem;
+    }
+
+    .ref-link-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.8rem;
+      color: var(--accent-cyan);
+      text-decoration: none;
+      padding: 0.3rem 0.65rem;
+      background: var(--accent-cyan-subtle);
+      border-radius: var(--radius-sm);
+      transition: var(--transition-smooth);
+    }
+
+    .ref-link-chip:hover {
+      background: rgba(56, 189, 248, 0.2);
+      transform: translateY(-2px);
+    }
+
+    .footer {
+      text-align: center;
+      padding: 3rem 0;
+      border-top: 1px solid var(--border-subtle);
+      color: var(--text-muted);
+      font-size: 0.85rem;
+    }
+
+    .footer a {
+      color: var(--text-secondary);
+      text-decoration: none;
+    }
+
+    .footer a:hover {
+      color: var(--text-primary);
+      text-decoration: underline;
+    }
+
+    @media (max-width: 640px) {
+      .hero-title {
+        font-size: 2.2rem;
+      }
+      .topic-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="hub-container">
+    <header class="hub-header">
+      <a href="./index.html" class="hub-brand">
+        <div class="hub-brand-logo">⚡</div>
+        <div>
+          <div class="hub-brand-title">TeachMeAnything</div>
+          <div class="hub-brand-subtitle">Multi-Topic Learning Hub</div>
+        </div>
+      </a>
+      <div class="hub-nav-actions">
+        <a href="https://github.com/devoirtechsandip/teachmeanything" target="_blank" rel="noopener" class="lesson-item" style="padding: 0.5rem 0.85rem; font-size: 0.85rem;">
+          ⭐ GitHub Repo
+        </a>
+      </div>
+    </header>
+
+    <section class="hero-banner">
+      <div class="hero-badge">🚀 Zero Setup • 100% Interactive</div>
+      <h1 class="hero-title">Master Systems Through Interactive Simulators</h1>
+      <p class="hero-description">
+        Explore visual mental models, execute state transitions in real time, and gain deep intuitive grasp across isolated engineering domains.
+      </p>
+    </section>
+
+    <main class="topic-grid">
+      <!-- Topic 1: Git -->
+      <article class="topic-card">
+        <div class="topic-card-header">
+          <span class="topic-badge topic-badge-active">Active Track</span>
+          <span style="font-size: 1.5rem;">🌿</span>
+        </div>
+        <h2 class="topic-title">Git Version Control</h2>
+        <p class="topic-desc">
+          Unpack Git's internal directed acyclic graph (DAG), object database, three trees pipeline, and commit snapshots through step-by-step interactive visualizers.
+        </p>
+
+        <div class="lesson-section-title">Interactive Lessons</div>
+        <ul class="lesson-list">
+          <li>
+            <a href="./topics/git/lessons/0001-why-git-and-the-snapshot-model.html" class="lesson-item">
+              <span class="lesson-item-title">
+                <span>01</span>
+                <span>Why Git & The Snapshot Model</span>
+              </span>
+              <span class="lesson-status-pill">Interactive</span>
+            </a>
+          </li>
+          <li>
+            <a href="./topics/git/lessons/0002-the-three-areas-and-first-commit.html" class="lesson-item">
+              <span class="lesson-item-title">
+                <span>02</span>
+                <span>The Three Areas & First Commit</span>
+              </span>
+              <span class="lesson-status-pill">Interactive</span>
+            </a>
+          </li>
+        </ul>
+
+        <div class="lesson-section-title">Visual References & Cheat Sheets</div>
+        <div class="ref-links-box">
+          <a href="./topics/git/reference/01-why-and-core-mental-model.html" class="ref-link-chip">
+            📖 01: Core Mental Model
+          </a>
+          <a href="./topics/git/reference/02-the-three-areas-and-staging.html" class="ref-link-chip">
+            📖 02: Three Areas & Staging
+          </a>
+        </div>
+      </article>
+
+      <!-- Topic 2: .NET -->
+      <article class="topic-card" style="opacity: 0.85;">
+        <div class="topic-card-header">
+          <span class="topic-badge topic-badge-upcoming">Scaffolding</span>
+          <span style="font-size: 1.5rem;">🔷</span>
+        </div>
+        <h2 class="topic-title">.NET Architecture</h2>
+        <p class="topic-desc">
+          Modern cross-platform .NET runtime, dependency injection container, asynchronous task scheduling, and high-performance Web API foundations.
+        </p>
+
+        <div class="lesson-section-title">Interactive Lessons</div>
+        <ul class="lesson-list">
+          <li>
+            <div class="lesson-item" style="cursor: default; opacity: 0.65;">
+              <span class="lesson-item-title">
+                <span>01</span>
+                <span>Runtime Architecture & CLI</span>
+              </span>
+              <span class="lesson-status-pill">Planned</span>
+            </div>
+          </li>
+        </ul>
+
+        <div class="lesson-section-title">Visual References & Cheat Sheets</div>
+        <div class="ref-links-box">
+          <span class="ref-link-chip" style="opacity: 0.6; cursor: default;">
+            📖 In Scaffolding
+          </span>
+        </div>
+      </article>
+    </main>
+
+    <footer class="footer">
+      <p>
+        TeachMeAnything &bull; Open-source multi-topic learning hub &bull; 
+        <a href="https://github.com/devoirtechsandip/teachmeanything" target="_blank" rel="noopener">GitHub</a> &bull; 
+        Licensed under MIT
+      </p>
+    </footer>
+  </div>
+</body>
+</html>

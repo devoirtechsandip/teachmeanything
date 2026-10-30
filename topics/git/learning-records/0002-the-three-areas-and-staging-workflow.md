@@ -7,3 +7,7 @@ Interactive three-trees pipeline simulation built and tested, interactive termin
 
 ## Implications
 Unlocks Lesson 0003 and Module 2 on atomic commit hygiene, `.gitignore` patterns, and comparing file differences with `git diff`. The learner now possesses the conceptual model to distinguish between unstaged modifications and staged changes.
+
+---
+- **Interactive Live Lesson**: [Launch Lesson 0002 Live Simulator](https://devoirtechsandip.github.io/teachmeanything/topics/git/lessons/0002-the-three-areas-and-first-commit.html)
+- **Reference Card**: [Launch Reference Guide #02](https://devoirtechsandip.github.io/teachmeanything/topics/git/reference/02-the-three-areas-and-staging.html)

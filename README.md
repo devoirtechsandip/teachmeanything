@@ -1,5 +1,11 @@
 # TeachMeAnything Learning Hub
 
+[![Live Learning Hub](https://img.shields.io/badge/Live_Hub-GitHub_Pages-2ea44f?logo=github)](https://devoirtechsandip.github.io/teachmeanything/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+
+> 🚀 **Live Interactive Hub**: Experience all interactive lessons, visual DAG simulators, and reference guides live in your browser without any installation:  
+> 👉 **[https://devoirtechsandip.github.io/teachmeanything/](https://devoirtechsandip.github.io/teachmeanything/)**
+
 A structured, multi-topic personal learning workspace powered by Matt Pocock's **`teach`** / **`teachme`** skill and real-world engineering agent skills. Compatible with **Google Antigravity**, **Cursor**, and **GitHub Copilot**.
 
 ---
