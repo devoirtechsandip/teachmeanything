@@ -42,6 +42,10 @@ This document establishes canonical terminology and ubiquitous language for the 
 | **Sequenced Commit Lifecycle** | Strict progression of 3 atomic conventional git commits: (1) Red tests + brief/spec, (2) Code implementation, (3) Green verification + security audit. |
 | **Persistent Artifacts** | Version-controlled records (`.triage/<id>/` for bugs; `.features/<id>/` or `topics/<topic>/.features/<id>/` for features) committed directly to topic branch. |
 | **PR Creation (`pr-creation`)** | Automated generation of a clean git branch, atomic commits, and PR description with the complete verification matrix for human review on GitHub. |
+| **Learning Hub Dashboard** | The root landing page (`index.html`) cataloging all learning topics, interactive lessons, and visual references with unified responsive styling. |
+| **Clean Staging (`dist/`)** | Sanitized build directory produced by `scripts/build-site.sh` containing only public assets, bypassing Jekyll with `.nojekyll` to prevent leaking internal files. |
+| **Live Deployment Pipeline** | Dual-mode GitHub Actions workflow (`.github/workflows/deploy.yml`) delivering production to GitHub Pages (`https://devoirtechsandip.github.io/teachmeanything/`) and optional preview branches. |
+| **Live Lesson Badges** | Markdown badges linking repository documentation and learning records directly to live web simulators. |
 
 ---
 

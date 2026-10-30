@@ -7,3 +7,7 @@ User requested a ground-up journey from basic to advanced with emphasis on the "
 
 ## Implications
 Future sessions will proceed straight through the curated CLI curriculum starting with the Three Areas of Git (Working Directory, Staging Area, and Commit History) in Lesson 0002. Avoid UI/GUI tool crutches and reinforce muscle memory for command line syntax, flags, and mental state inspection.
+
+---
+- **Interactive Live Lesson**: [Launch Lesson 0001 Live Simulator](https://devoirtechsandip.github.io/teachmeanything/topics/git/lessons/0001-why-git-and-the-snapshot-model.html)
+- **Reference Card**: [Launch Reference Guide #01](https://devoirtechsandip.github.io/teachmeanything/topics/git/reference/01-why-and-core-mental-model.html)
