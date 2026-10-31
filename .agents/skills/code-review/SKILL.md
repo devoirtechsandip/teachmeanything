@@ -30,6 +30,10 @@ Code reviews frequently fail because reviewers conflate personal stylistic prefe
 ### Axis A: Standards
 - Inspect repository documentation (e.g., `CONTRIBUTING.md`, `CODING_STANDARDS.md`, rule files, or existing canonical patterns).
 - Evaluate naming, abstraction levels, accessibility, semantic HTML, modularity, and error handling.
+- **Documentation Freshness Gate (ADR 0010)**:
+  - Verify that living documentation was synchronized via `/doc-sync` for all behavioral/architectural/API changes.
+  - Check that relevant terms are added to `CONTEXT.md` / `GLOSSARY.md`, new patterns are captured in ADRs, and guides (`README.md`, `index.html`) are updated.
+  - If code changed without accompanying documentation updates, verify that an explicit, justified `Documentation Impact: None` rationale is recorded in `.triage/<id>/rca.md` or `<feature-dir>/verification.md`. Reject if unjustified or missing.
 - Surface antipatterns or regressions.
 
 ### Axis B: Spec
