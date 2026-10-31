@@ -12,6 +12,7 @@ This document establishes canonical terminology and ubiquitous language for the 
 - **Operational Lifecycle**: 3-Strike Circuit Breaker, Ephemeral/Persistent Artifacts, and Gated PR creation per [ADR 0005](file:///workspaces/teachmeanything/docs/adr/0005-operational-lifecycle-and-circuit-breaker.md).
 - **Sequenced Commits & Audit History**: Early topic branch creation, 3-Commit Gate Standard, persistent `.triage/` or `.features/` tracking, and automated PR opening for human review per [ADR 0007](file:///workspaces/teachmeanything/docs/adr/0007-sequenced-commit-git-lifecycle-and-persistent-triage.md) and [ADR 0008](file:///workspaces/teachmeanything/docs/adr/0008-feature-development-lifecycle-and-grilling-gate.md).
 - **Cross-IDE Distribution**: Full parity across Antigravity (`.agents/`), Cursor (`.cursor/`), and GitHub Copilot (`.github/`) per [ADR 0006](file:///workspaces/teachmeanything/docs/adr/0006-multi-ide-agent-parity.md).
+- **Continuous Documentation Synchronization**: Pre-verification documentation sync (`/doc-sync`), QA Axis A documentation freshness hard gate, and Commit 3 packaging per [ADR 0010](file:///Users/sandipkumbhar/Documents/Personal/teachmeanything/docs/adr/0010-continuous-documentation-synchronization.md).
 
 ---
 
@@ -46,6 +47,7 @@ This document establishes canonical terminology and ubiquitous language for the 
 | **Clean Staging (`dist/`)** | Sanitized build directory produced by `scripts/build-site.sh` containing only public assets, bypassing Jekyll with `.nojekyll` to prevent leaking internal files. |
 | **Live Deployment Pipeline** | Dual-mode GitHub Actions workflow (`.github/workflows/deploy.yml`) delivering production to GitHub Pages (`https://devoirtechsandip.github.io/teachmeanything/`) and optional preview branches. |
 | **Live Lesson Badges** | Markdown badges linking repository documentation and learning records directly to live web simulators. |
+| **Doc Sync (`doc-sync`)** | Pre-verification audit and sync of ubiquitous language (`CONTEXT.md` / `GLOSSARY.md`), ADRs (`docs/adr/`), user guides (`README.md`), and dashboard (`index.html`) per [ADR 0010](file:///Users/sandipkumbhar/Documents/Personal/teachmeanything/docs/adr/0010-continuous-documentation-synchronization.md). |
 
 ---
 
@@ -70,8 +72,11 @@ This document establishes canonical terminology and ubiquitous language for the 
           ┌──► [Developer: RCA & Minimal Fix]
           │             │
           │             ▼
+          │    [Coordinator: /doc-sync (Pre-Verification Sync)] ──► (Stage Doc Diffs)
+          │             │
+          │             ▼
           │    [QA: Green Verification & Two-Axis Review] ──► (Rejected) ──┐
-          │             │ (Passed)                                         │
+          │             │ (Passed: Green + Axis A Docs + Axis B)           │
           │             ▼                                                  │
           │    [Security Agent: Pre-Commit Audit] ─────────► (Vulnerable) ─┘
           │             │ (Approved)                         (Retry Budget < 3)
@@ -82,7 +87,7 @@ This document establishes canonical terminology and ubiquitous language for the 
              (Commit 2: fix(<scope>): resolve <root-cause> + rca.md)
                         │
                         ▼
-             (Commit 3: docs(<scope>): record QA verification & security audit)
+             (Commit 3: docs(<scope>): record QA verification, security audit, and doc sync)
                         │
                         ▼
              [Coordinator: Push Branch & Open PR for Human Review]
@@ -120,8 +125,11 @@ This document establishes canonical terminology and ubiquitous language for the 
           ┌──► [Developer: Minimal Implementation per Spec]
           │             │
           │             ▼
+          │    [Coordinator: /doc-sync (Pre-Verification Sync)] ──► (Stage Doc Diffs)
+          │             │
+          │             ▼
           │    [QA: Green Verification & Two-Axis Review] ──► (Rejected) ──┐
-          │             │ (Passed)                                         │
+          │             │ (Passed: Green + Axis A Docs + Axis B)           │
           │             ▼                                                  │
           │    [Security Agent: Pre-Commit Audit] ─────────► (Vulnerable) ─┘
           │             │ (Approved)                         (Retry Budget < 3)
@@ -132,7 +140,7 @@ This document establishes canonical terminology and ubiquitous language for the 
              (Commit 2: feat(<scope>): implement <feature-id> per spec)
                         │
                         ▼
-             (Commit 3: docs(<scope>): record QA verification & security audit)
+             (Commit 3: docs(<scope>): record QA verification, security audit, and doc sync)
                         │
                         ▼
              [Coordinator: Push Branch & Open PR for Human Review]
