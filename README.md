@@ -75,6 +75,9 @@ This repository is equipped with curated agent skills to support educational aut
 | **`code-review`** | `mattpocock/skills` | Disciplined two-axis review evaluating diffs across **Standards** (conventions) and **Spec** (requirements) independently against a fixed ref. | `/code-review [git-ref]` |
 | **`diagnosing-bugs`** | `mattpocock/skills` | Gated 6-phase root-cause debugging workflow (*"No red-capable command, no Phase 2"*). | `"diagnose this"`, `"fix this bug"` |
 | **`handoff`** | `mattpocock/skills` | Compacts active conversation state, active frontiers, and immediate next steps into an OS temp document for seamless multi-session handover. | `/handoff` |
+| **`doc-sync`** | `workflow/doc-sync` | Continuous documentation synchronization auditing code diffs, updating ubiquitous language (`CONTEXT.md` / `GLOSSARY.md`), ADRs, and guides per [ADR 0010](file:///Users/sandipkumbhar/Documents/Personal/teachmeanything/docs/adr/0010-continuous-documentation-synchronization.md). | `/doc-sync` |
+| **`triage-orchestrator`** | `workflow/triage-team` | Master multi-agent orchestrator executing autonomous bug triage, Red gate reproduction, minimal fix, doc sync, and 3-commit PR. | `/triage-orchestrator <issue>` |
+| **`feature-orchestrator`** | `workflow/feature-team` | Master multi-agent orchestrator executing autonomous Socratic feature specification, acceptance Red gate, implementation, doc sync, and 3-commit PR. | `/feature-orchestrator <feature>` |
 | **`improve-codebase-architecture`** | `mattpocock/skills` | Audits codebase and topic boundaries, identifies duplication or coupling, and proposes structured refactorings. | `"improve architecture"`, `"audit repo"` |
 
 ---

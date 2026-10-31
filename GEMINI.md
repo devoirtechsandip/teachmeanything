@@ -16,3 +16,4 @@ See [AGENTS.md](./AGENTS.md) for the complete multi-topic policy.
 - Enforce the Mandatory Grilling Gate: Coordinator conducts an interactive `grill-with-docs` session directly with the user before any code branch is cut or subagents are dispatched.
 - Enforce the Acceptance Red Gate: no feature code changes until QA produces an automated failing acceptance test suite (Red).
 - Enforce context-aware persistence: `.features/<feature-id>/` for repo features, or `topics/<topic-name>/.features/<feature-id>/` for topic features, preserved across 3 sequential commits on `feat/<feature-id>-<slug>`.
+- Enforce Continuous Documentation Synchronization (`/doc-sync` per ADR 0010): Coordinator runs `/doc-sync` after Developer implementation, QA verifies doc freshness in Axis A, and staged doc diffs are sealed in Commit 3 (`docs(...)`).

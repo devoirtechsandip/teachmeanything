@@ -29,8 +29,11 @@ Master multi-agent orchestration skill coordinating the **Coordinator**, **Devel
          ┌──► [Phase 3: Developer RCA & Fix]
          │             │
          │             ▼
+         │    [Phase 3.5: Coordinator /doc-sync] ──► (Stage Doc Diffs)
+         │             │
+         │             ▼
          │    [Phase 4: QA Verification & Code Review] ──► (Rejected) ──┐
-         │             │ (Passed)                                       │
+         │             │ (Passed: Green + Axis A Docs + Axis B)         │
          │             ▼                                                ▼
          │    [Phase 5: Security Review Audit] ──────────► (Vulnerable) ─┘
          │             │ (Approved)                       (Retry Budget < 3)
@@ -41,7 +44,7 @@ Master multi-agent orchestration skill coordinating the **Coordinator**, **Devel
             (Commit 2: fix(<scope>): resolve <root-cause> + rca.md)
                        │
                        ▼
-            (Commit 3: docs(<scope>): record QA verification & security audit)
+            (Commit 3: docs(<scope>): record QA verification, security audit, and doc sync)
                        │
                        ▼
             [Phase 6: Push Branch & Open PR for Human Review]
@@ -81,11 +84,16 @@ Master multi-agent orchestration skill coordinating the **Coordinator**, **Devel
 3. Instrument minimally, isolate the root cause, and author a minimal surgical fix.
 4. Save hypotheses and diagnosis to `.triage/<issue-id>/rca.md`.
 
+### Phase 3.5: Continuous Documentation Synchronization (Coordinator)
+1. Coordinator executes `/doc-sync` per ADR 0010.
+2. If the bug fix alters external behavior, API contracts, flags, or architecture, `/doc-sync` stages updates to `CONTEXT.md` / topic `GLOSSARY.md`, ADRs, or user guides.
+3. If the bug fix has zero documentation impact, `/doc-sync` logs an explicit `Documentation Impact: None` entry with technical justification in `.triage/<issue-id>/rca.md`.
+
 ### Phase 4: Verification & Two-Axis Code Review (QA Agent)
 1. Delegate to QA Agent running `/code-review`.
 2. Execute reproduction command: **Must turn Green**.
 3. Execute repository full test suite: **Zero regressions permitted**.
-4. Evaluate code diff across **Axis A (Standards)** and **Axis B (Spec)**.
+4. Evaluate code diff across **Axis A (Standards & Documentation Freshness per ADR 0010)** and **Axis B (Spec)**. Verify staged doc updates or explicit exemption rationale in `rca.md`.
 5. Save evaluation to `.triage/<issue-id>/qa-report.md`.
 6. If failed or regressions occur, return to Phase 3 with targeted feedback (decrement retry budget).
 
@@ -110,10 +118,10 @@ Master multi-agent orchestration skill coordinating the **Coordinator**, **Devel
    git add <modified-application-files> .triage/<issue-id>/rca.md
    git commit -m "fix(<subsystem>): resolve <root-cause> in <components>"
    ```
-3. Invoke `/pr-creation` to seal **Commit 3 (Verification & Security)**:
+3. Invoke `/pr-creation` to seal **Commit 3 (Verification, Security & Doc Sync)**:
    ```bash
-   git add .triage/<issue-id>/qa-report.md .triage/<issue-id>/security-audit.md
-   git commit -m "docs(<subsystem>): record QA green verification and pre-commit security audit"
+   git add <updated-documentation-files> .triage/<issue-id>/qa-report.md .triage/<issue-id>/security-audit.md
+   git commit -m "docs(<subsystem>): record QA verification, security audit, and doc sync"
    ```
 4. Push branch to remote:
    ```bash

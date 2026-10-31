@@ -71,7 +71,7 @@ When working on defect resolution, triage, or running `/triage-orchestrator`:
    - Every bug fix branch must feature exactly 3 sequenced, atomic conventional commits:
      - **Commit 1**: `test(<scope>): reproduce <issue-id> failure (Red Gate)` (Triage brief + reproduction script + Red report).
      - **Commit 2**: `fix(<scope>): resolve <root-cause> in <components>` (Application diff + RCA document).
-     - **Commit 3**: `docs(<scope>): record QA verification and security audit` (QA Green report + Security clearance).
+     - **Commit 3**: `docs(<scope>): record QA verification, security audit, and doc sync` (QA Green report + Security clearance + staged repository or topic documentation updates per ADR 0010).
    - `.triage/<issue-id>/` is permanently tracked in version control and merged to `main`. Never `.gitignore` `.triage/`.
 5. **Circuit Breaker**:
    - 3-iteration fix budget. On the 3rd failure, the Coordinator executes `git reset`, writes a Failure Debrief, and halts for user consultation.
@@ -97,7 +97,7 @@ When building new features, functionalities, or running `/feature-orchestrator`:
    - Every feature branch must feature exactly 3 sequenced, atomic conventional commits:
      - **Commit 1**: `test(<scope>): define acceptance test suite for <feature-id>` (Spec bundle + failing tests + Red report).
      - **Commit 2**: `feat(<scope>): implement <feature-id> per spec` (Application diff + implementation notes).
-     - **Commit 3**: `docs(<scope>): record QA verification and security audit` (QA Green report + Security clearance).
+     - **Commit 3**: `docs(<scope>): record QA verification, security audit, and doc sync` (QA Green report + Security clearance + staged repository or topic documentation updates per ADR 0010).
    - **Persistence Path**:
      - Repo-wide features: `.features/<feature-id>/`
      - Topic-specific features: `topics/<topic-name>/.features/<feature-id>/` (preserving topic isolation).
@@ -106,3 +106,20 @@ When building new features, functionalities, or running `/feature-orchestrator`:
    - 3-iteration implementation budget. On the 3rd failure of QA or Security verification, Coordinator executes `git reset`, writes `failure-debrief.md`, and halts for user consultation.
 6. **PR Creation & Human Review**:
    - Once all 3 commits are sealed, Coordinator pushes to `origin` and opens a PR via `gh pr create` with the full verification matrix table.
+
+---
+
+## 5. Continuous Documentation Synchronization (`doc-sync`)
+
+Per ADR 0010, repository and topic documentation must never drift from code implementation:
+
+1. **Execution Point (Phase 3.5)**:
+   - Immediately following Phase 3 (Developer code changes), Coordinator executes `/doc-sync`.
+2. **Context-Aware Scoping**:
+   - Changes inside `topics/<topic-name>/` strictly update topic documentation (`topics/<topic-name>/GLOSSARY.md`, `reference/`, `MISSION.md`). Cross-topic or root modifications are strictly barred.
+   - Changes at repository root strictly update root documentation (`CONTEXT.md`, `docs/adr/`, `README.md`, `index.html`).
+3. **Hard QA Gate (Axis A)**:
+   - QA Agent verifies that documentation diffs accompany all behavioral/interface changes.
+   - If a code change has zero documentation impact, an explicit, justified `Documentation Impact: None` entry must be recorded in `.triage/<id>/rca.md` or `<feature-dir>/verification.md`.
+4. **Commit 3 Packaging**:
+   - All staged documentation changes are sealed inside Commit 3 (`docs(...)`) alongside QA and Security reports.

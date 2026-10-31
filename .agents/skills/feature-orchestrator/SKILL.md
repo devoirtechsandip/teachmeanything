@@ -29,6 +29,9 @@ Master multi-agent orchestration skill coordinating the **Coordinator**, **Devel
           ┌──► [Phase 3: Developer Implementation per Spec]
           │             │
           │             ▼
+          │    [Phase 3.5: Coordinator /doc-sync] ──► (Stage Doc Diffs)
+          │             │
+          │             ▼
           │    [Phase 4: QA Green Verification & Two-Axis Review] ──► (Rejected) ──┐
           │             │ (Passed)                                                 │
           │             ▼                                                          │
@@ -41,7 +44,7 @@ Master multi-agent orchestration skill coordinating the **Coordinator**, **Devel
              (Commit 2: feat(<scope>): implement <feature-id> per spec)
                         │
                         ▼
-             (Commit 3: docs(<scope>): record QA verification & security audit)
+             (Commit 3: docs(<scope>): record QA verification, security audit, and doc sync)
                         │
                         ▼
              [Phase 6: Push Branch & Open PR for Human Review]
@@ -85,12 +88,17 @@ Master multi-agent orchestration skill coordinating the **Coordinator**, **Devel
 3. Developer implements the minimal application/library code diff required to satisfy the acceptance tests without scope creep or extraneous additions.
 4. Developer verifies locally that acceptance tests pass.
 
+### Phase 3.5: Continuous Documentation Synchronization (Coordinator)
+1. Coordinator executes `/doc-sync` per ADR 0010.
+2. Synchronizes ubiquitous terms in `CONTEXT.md` (or topic `GLOSSARY.md`), operational guides in `README.md`, ADR records, and landing hub catalogs in `index.html`.
+3. If the feature has zero documentation impact, `/doc-sync` logs an explicit `Documentation Impact: None` entry with technical justification in `<feature-dir>/verification.md`.
+
 ### Phase 4: Verification & Two-Axis Code Review (QA Agent)
 1. Delegate to QA Agent running `/code-review`.
 2. Run the acceptance test suite: **Must turn completely Green**.
 3. Run the repository's full regression test suite: **Zero regressions permitted**.
 4. Perform Two-Axis Code Review:
-   - **Axis A (Standards)**: Code style, cleanliness, idiomatic conventions, documentation.
+   - **Axis A (Standards & Documentation Freshness per ADR 0010)**: Code style, cleanliness, idiomatic conventions, and staged doc updates (or explicit exemption rationale).
    - **Axis B (Spec Compliance)**: Complete coverage of all Gherkin criteria in `spec.md` without undeclared scope additions.
 5. Output review results to `<feature-dir>/verification.md`.
 6. If tests fail or review rejects, return to Phase 3 with actionable remediation feedback (decrement retry budget).
@@ -116,10 +124,10 @@ Master multi-agent orchestration skill coordinating the **Coordinator**, **Devel
    git add <modified-application-files>
    git commit -m "feat(<subsystem>): implement <feature-id> per specification"
    ```
-3. Invoke `/pr-creation` to seal **Commit 3 (Verification & Security Gate)**:
+3. Invoke `/pr-creation` to seal **Commit 3 (Verification, Security & Doc Sync Gate)**:
    ```bash
-   git add <feature-dir>/verification.md <feature-dir>/security-audit.md
-   git commit -m "docs(<subsystem>): record QA verification and security audit for <feature-id>"
+   git add <updated-documentation-files> <feature-dir>/verification.md <feature-dir>/security-audit.md
+   git commit -m "docs(<subsystem>): record QA verification, security audit, and doc sync for <feature-id>"
    ```
 4. Push the branch to remote:
    ```bash
