@@ -79,6 +79,18 @@ for link in $LINKS; do
   fi
 done
 
+# 6. Sanity Verification: Check reciprocal Home links in staged topic screens
+echo "🔍 Validating reciprocal Home links in staged topic screens..."
+TOPIC_PAGES=$(find "${TARGET_DIR}/topics" -type f -name "*.html" 2>/dev/null || true)
+for page in $TOPIC_PAGES; do
+  if ! grep -q 'href="../../../index.html"' "${page}"; then
+    echo "  ❌ Missing reciprocal Home link in: ${page}" >&2
+    BROKEN_LINKS=$((BROKEN_LINKS + 1))
+  else
+    echo "  ✓ Verified Home link in: $(basename "${page}")"
+  fi
+done
+
 if [ "${BROKEN_LINKS}" -gt 0 ]; then
   echo "❌ Build failed: ${BROKEN_LINKS} broken link(s) found in index.html" >&2
   exit 1
