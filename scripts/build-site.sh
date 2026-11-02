@@ -26,7 +26,13 @@ if [ ! -f "index.html" ]; then
 fi
 cp index.html "${TARGET_DIR}/index.html"
 
-# 4. Copy topic public web deliverables (lessons, assets, reference)
+# 4. Copy shared root assets (CSS design system, branding, icons)
+if [ -d "assets" ]; then
+  mkdir -p "${TARGET_DIR}/assets"
+  cp -R assets/* "${TARGET_DIR}/assets/"
+fi
+
+# 5. Copy topic public web deliverables (lessons, assets, reference)
 for topic_dir in topics/*; do
   if [ ! -d "${topic_dir}" ]; then
     continue

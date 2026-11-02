@@ -99,3 +99,23 @@ The agent will automatically:
 To add a new topic (e.g. `docker`, `rust`, `kubernetes`):
 1. Copy `topics/_template/` to `topics/<new-topic>/`.
 2. Or simply prompt your agent: *"I want to learn Docker"* — the agent will scaffold the new topic directory from `topics/_template/` automatically.
+3. For comprehensive guidelines on structuring lessons, design tokens, and dashboard registration, see [docs/guides/authoring-topics.md](docs/guides/authoring-topics.md).
+
+---
+
+## 💻 Local Development & Testing
+
+### Prerequisites
+- Standard Unix shell (`bash` / `zsh`)
+- Python 3 (or any static HTTP server) for local preview
+
+### Developer Workflow Commands
+
+| Task | Command | Description |
+| :--- | :--- | :--- |
+| **Run All Tests** | `bash scripts/test.sh` | Executes all acceptance suites and link integrity tests across the repository. |
+| **Stage Distribution** | `bash scripts/build-site.sh dist` | Packages web deliverables into `dist/` and validates internal link paths. |
+| **Preview Locally** | `python3 -m http.server 8080 -d dist` | Launches a local server at `http://localhost:8080` serving the staged hub. |
+| **Run Health Audit** | `/repo-audit` | Evaluates the repository across 6 technical axes and checks for regressions. |
+| **Provision Issues** | `bash .audits/provision-issues.sh` | Synchronizes approved audit issues to GitHub using `gh`. |
+

@@ -22,9 +22,35 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  lint:
+    name: Code & Script Quality Gate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Validate Shell Script Syntax
+        run: |
+          echo "🔍 Validating shell script syntax..."
+          for script in scripts/*.sh .audits/*.sh; do
+            bash -n "$script"
+            echo "  ✓ Syntax valid: $script"
+          done
+
+  test:
+    name: Run Unified Acceptance Test Suites
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Execute Unified Test Runner
+        run: bash scripts/test.sh
+
   build:
     name: Build & Stage Public Deliverables
     runs-on: ubuntu-latest
+    needs: [lint, test]
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
