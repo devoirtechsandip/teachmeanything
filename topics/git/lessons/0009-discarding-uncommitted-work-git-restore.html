@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lesson 0009: Discarding Uncommitted Work with git restore</title>
+  <link rel="stylesheet" href="../assets/style.css">
+  <style>
+    .restore-zone {
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border-card);
+      border-radius: var(--radius-sm);
+      padding: 1.5rem;
+      margin: 1.5rem 0;
+    }
+  </style>
+</head>
+<body>
+  <div id="topProgressBar" class="top-progress-bar"></div>
+
+  <nav class="sticky-nav">
+    <a href="0008-team-synchronization-fetch-pull-push.html" class="nav-brand">
+      <svg class="nav-logo-icon" viewBox="0 0 24 24"><path d="M21.62 10.74l-8.36-8.36a2.04 2.04 0 0 0-2.88 0l-2 2a.37.37 0 0 0 0 .52l2.42 2.42a1.8 1.8 0 0 1 .53-.08 1.87 1.87 0 0 1 1.87 1.87 1.84 1.84 0 0 1-.58 1.34l2.49 2.5a1.86 1.86 0 0 1 1.32-.57 1.87 1.87 0 1 1-1.87 1.87 1.83 1.83 0 0 1 .49-1.24l-2.37-2.37v5.27a1.88 1.88 0 1 1-1.25 0V8.71a1.85 1.85 0 0 1-.95-.62L7.96 5.62l-5.58 5.58a2.04 2.04 0 0 0 0 2.88l8.36 8.36a2.04 2.04 0 0 0 2.88 0l8-8a2.04 2.04 0 0 0 0-2.88z"/></svg>
+      <span>Git Mastery Hub</span>
+    </a>
+    <div class="nav-controls">
+      <a href="0008-team-synchronization-fetch-pull-push.html" class="btn" style="padding: 0.4rem 0.85rem; font-size: 0.82rem;">← Lesson 0008</a>
+      <a href="0010-safe-undos-vs-history-rewrites-revert-vs-reset.html" class="btn" style="padding: 0.4rem 0.85rem; font-size: 0.82rem;">Lesson 0010 →</a>
+      <a href="../reference/09-undoing-with-git-restore.html" class="btn" style="padding: 0.4rem 0.85rem; font-size: 0.82rem;">📄 Reference Card</a>
+      <button id="themeToggleBtn" class="theme-toggle-btn" onclick="toggleTheme()" title="Switch Theme">🌙</button>
+    </div>
+  </nav>
+
+  <div class="container">
+    <header class="lesson-header">
+      <div class="badge-wrapper">
+        <span class="lesson-badge">Lesson 0009 • Module 5</span>
+        <span class="meta-pill">⏱️ 6 min read</span>
+        <span class="meta-pill">⏪ Restore Playground</span>
+      </div>
+      <h1>Discarding Uncommitted Work with git restore</h1>
+      <p>Take control of your local edits: learn how modern <code>git restore</code> elegantly unstages changes from the index and rolls back botched file experiments in your working tree.</p>
+    </header>
+
+    <main>
+      <h2><span class="section-num">1</span> The Two Uncommitted Disasters</h2>
+      <p>
+        Every developer encounters two daily scenarios before committing:
+      </p>
+      <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 1.5rem; margin: 1.5rem 0;">
+        <div class="interactive-card">
+          <h3 style="color: var(--accent-amber);">Scenario 1: "Oops, I Staged the Wrong File!"</h3>
+          <p style="font-size: 0.9rem; color: var(--text-secondary);">
+            You accidentally ran <code>git add .env</code> or staged an incomplete file. You don't want to lose your edits; you simply want to remove it from the staging area.
+          </p>
+          <div class="terminal-window">
+            <div class="terminal-body">
+              <span class="terminal-prompt">$</span> <span class="terminal-cmd">git restore --staged .env</span>
+            </div>
+          </div>
+          <p style="font-size: 0.85rem; color: var(--accent-emerald); margin-top: 0.5rem;">
+            ✓ Moves <code>.env</code> out of the Staging Area back to unstaged Working Tree. Your code is 100% safe!
+          </p>
+        </div>
+
+        <div class="interactive-card">
+          <h3 style="color: var(--accent-rose);">Scenario 2: "Throw Away My Terrible Edits!"</h3>
+          <p style="font-size: 0.9rem; color: var(--text-secondary);">
+            You spent 30 minutes hacking on <code>widget.js</code>, broke everything, and want to throw it in the trash and restore the clean version from your last commit.
+          </p>
+          <div class="terminal-window">
+            <div class="terminal-body">
+              <span class="terminal-prompt">$</span> <span class="terminal-cmd">git restore widget.js</span>
+            </div>
+          </div>
+          <p style="font-size: 0.85rem; color: var(--accent-rose); margin-top: 0.5rem;">
+            ⚠️ Permanent discard: Replaces your working file with the pristine version from the Staging Area / HEAD!
+          </p>
+        </div>
+      </div>
+
+      <h2><span class="section-num">2</span> Interactive Restore Simulator</h2>
+      <div class="interactive-card">
+        <div class="interactive-card-title">Interactive Restore Lab</div>
+        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.25rem;">
+          <button class="btn" onclick="simRestore('stage_secret')">1. Stage .env by mistake</button>
+          <button class="btn" onclick="simRestore('unstage')">2. git restore --staged .env</button>
+          <button class="btn" onclick="simRestore('break_app')">3. Botch app.js edits</button>
+          <button class="btn" onclick="simRestore('discard_app')">4. git restore app.js</button>
+          <button class="btn" onclick="simRestore('reset')">Reset</button>
+        </div>
+
+        <div class="restore-zone" id="restoreDisplayBox">
+          <div style="font-family: var(--font-mono); font-size: 0.88rem;">
+            <div>Working tree clean. All files match last commit snapshot.</div>
+          </div>
+        </div>
+
+        <div id="restoreNotice" style="margin-top: 0.75rem; font-family: var(--font-mono); font-size: 0.88rem; color: var(--accent-cyan);">
+          Click '1. Stage .env by mistake' to begin!
+        </div>
+      </div>
+
+      <h2><span class="section-num">3</span> Knowledge Check</h2>
+      <div class="quiz-container" id="quizLesson9_1">
+        <div class="quiz-question">Which command unstages a file from the index without deleting your local code edits?</div>
+        <div class="quiz-option" onclick="selectOption('quizLesson9_1', 0)">A) git restore --staged &lt;file&gt;</div>
+        <div class="quiz-option" onclick="selectOption('quizLesson9_1', 1)">B) git restore &lt;file&gt;</div>
+        <div class="quiz-option" onclick="selectOption('quizLesson9_1', 2)">C) git rm &lt;file&gt;</div>
+        <div class="quiz-feedback" id="quizLesson9_1_feedback"></div>
+      </div>
+    </main>
+
+    <footer class="lesson-footer">
+      <div>
+        <a href="0008-team-synchronization-fetch-pull-push.html" class="btn">← Lesson 0008</a>
+      </div>
+      <div class="footer-source">
+        Git Mastery Curriculum • Module 5 • Lesson 0009
+      </div>
+      <div>
+        <a href="0010-safe-undos-vs-history-rewrites-revert-vs-reset.html" class="btn primary">Next: Lesson 0010 (Revert vs Reset) →</a>
+      </div>
+    </footer>
+  </div>
+
+  <script src="../assets/components.js"></script>
+  <script>
+    initQuiz('quizLesson9_1', {
+      correctIndex: 0,
+      explanation: '<code>git restore --staged &lt;file&gt;</code> pulls the file out of the staging area and returns it to unstaged status while preserving your code intact.'
+    });
+
+    function simRestore(action) {
+      const box = document.getElementById('restoreDisplayBox');
+      const notice = document.getElementById('restoreNotice');
+
+      if (action === 'stage_secret') {
+        box.innerHTML = `
+          <div style="font-family: var(--font-mono); font-size: 0.88rem;">
+            <div style="color: var(--accent-rose); font-weight: 700;">⚠️ STAGED FOR COMMIT:</div>
+            <div style="color: var(--accent-emerald);">&nbsp;&nbsp;.env (contains DB_PASSWORD=supersecret!)</div>
+          </div>
+        `;
+        notice.innerHTML = `🚨 Secret is staged! Click '2. git restore --staged .env' to safely unstage it before committing!`;
+      } else if (action === 'unstage') {
+        box.innerHTML = `
+          <div style="font-family: var(--font-mono); font-size: 0.88rem;">
+            <div style="color: var(--accent-emerald); font-weight: 700;">✓ UNSTAGED SUCCESSFULLY:</div>
+            <div style="color: var(--accent-amber);">&nbsp;&nbsp;.env (back in working tree only, safe from commit)</div>
+          </div>
+        `;
+        notice.innerHTML = `🎉 Saved! <code>.env</code> is removed from staging. Your local edits remain unharmed.`;
+        triggerConfetti();
+      } else if (action === 'break_app') {
+        box.innerHTML = `
+          <div style="font-family: var(--font-mono); font-size: 0.88rem;">
+            <div style="color: var(--accent-rose); font-weight: 700;">💥 BOTCHED LOCAL EDITS:</div>
+            <div style="color: var(--accent-rose);">&nbsp;&nbsp;app.js (syntax error on line 42, server crashing)</div>
+          </div>
+        `;
+        notice.innerHTML = `Click '4. git restore app.js' to wipe these botched edits and restore clean code from HEAD.`;
+      } else if (action === 'discard_app') {
+        box.innerHTML = `
+          <div style="font-family: var(--font-mono); font-size: 0.88rem;">
+            <div style="color: var(--accent-cyan); font-weight: 700;">✨ RESTORED PRISTINE FILE:</div>
+            <div>&nbsp;&nbsp;app.js cleanly reverted to match last commit snapshot.</div>
+          </div>
+        `;
+        notice.innerHTML = `✅ Working tree restored. The botched edits have been discarded cleanly.`;
+        triggerConfetti();
+      } else if (action === 'reset') {
+        location.reload();
+      }
+    }
+  </script>
+</body>
+</html>

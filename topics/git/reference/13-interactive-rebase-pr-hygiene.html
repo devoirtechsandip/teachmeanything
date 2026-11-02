@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Git Reference #13: Interactive Rebase & PR Hygiene</title>
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+  <div id="topProgressBar" class="top-progress-bar"></div>
+
+  <nav class="sticky-nav">
+    <a href="../lessons/0013-pr-ready-interactive-rebase.html" class="nav-brand">
+      <svg class="nav-logo-icon" viewBox="0 0 24 24"><path d="M21.62 10.74l-8.36-8.36a2.04 2.04 0 0 0-2.88 0l-2 2a.37.37 0 0 0 0 .52l2.42 2.42a1.8 1.8 0 0 1 .53-.08 1.87 1.87 0 0 1 1.87 1.87 1.84 1.84 0 0 1-.58 1.34l2.49 2.5a1.86 1.86 0 0 1 1.32-.57 1.87 1.87 0 1 1-1.87 1.87 1.83 1.83 0 0 1 .49-1.24l-2.37-2.37v5.27a1.88 1.88 0 1 1-1.25 0V8.71a1.85 1.85 0 0 1-.95-.62L7.96 5.62l-5.58 5.58a2.04 2.04 0 0 0 0 2.88l8.36 8.36a2.04 2.04 0 0 0 2.88 0l8-8a2.04 2.04 0 0 0 0-2.88z"/></svg>
+      <span>Git Mastery Hub</span>
+    </a>
+    <div class="nav-controls">
+      <a href="../lessons/0013-pr-ready-interactive-rebase.html" class="btn" style="padding: 0.4rem 0.85rem; font-size: 0.82rem;">← Back to Lesson 0013</a>
+      <button id="themeToggleBtn" class="theme-toggle-btn" onclick="toggleTheme()" title="Switch Theme">🌙</button>
+    </div>
+  </nav>
+
+  <div class="container">
+    <header class="lesson-header">
+      <div class="badge-wrapper">
+        <span class="lesson-badge">Quick Reference Card #13</span>
+        <span class="meta-pill">⚡ Cheat Sheet</span>
+      </div>
+      <h1>Interactive Rebase Commands</h1>
+      <p>Cheat sheet for squashing, rewording, and publishing cleaned Pull Requests.</p>
+    </header>
+
+    <main>
+      <h2>Interactive Rebase Playbook</h2>
+      <div class="terminal-window">
+        <div class="terminal-body">
+          <span style="color: var(--text-muted);"># Start interactive rebase for the last 4 commits</span><br>
+          <code>git rebase -i HEAD~4</code><br><br>
+          <span style="color: var(--text-muted);"># Rebase all commits since diverging from main</span><br>
+          <code>git rebase -i main</code><br><br>
+          <span style="color: var(--text-muted);"># Verbs inside the editor:</span><br>
+          <code>pick   = use commit</code><br>
+          <code>reword = use commit, but edit commit message</code><br>
+          <code>squash = meld into previous commit, keep message</code><br>
+          <code>fixup  = meld into previous commit, discard message</code><br>
+          <code>drop   = remove commit</code><br><br>
+          <span style="color: var(--text-muted);"># Push rebased branch safely to GitHub</span><br>
+          <code>git push --force-with-lease origin feat/my-branch</code>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script src="../assets/components.js"></script>
+</body>
+</html>

@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lesson 0004: Branches as Lightweight Movable Pointers</title>
+  <link rel="stylesheet" href="../assets/style.css">
+  <style>
+    .dag-node {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: var(--bg-surface-elevated);
+      border: 2px solid var(--accent-cyan);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--accent-cyan);
+      position: relative;
+    }
+    .pointer-badge {
+      position: absolute;
+      top: -28px;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      font-family: var(--font-mono);
+      white-space: nowrap;
+    }
+    .badge-head { background: var(--accent-amber); color: #000; top: -52px; }
+    .badge-main { background: var(--accent-cyan); color: #000; }
+    .badge-feature { background: var(--accent-purple); color: #fff; }
+  </style>
+</head>
+<body>
+  <div id="topProgressBar" class="top-progress-bar"></div>
+
+  <nav class="sticky-nav">
+    <a href="0003-history-diffs-and-hygiene.html" class="nav-brand">
+      <svg class="nav-logo-icon" viewBox="0 0 24 24"><path d="M21.62 10.74l-8.36-8.36a2.04 2.04 0 0 0-2.88 0l-2 2a.37.37 0 0 0 0 .52l2.42 2.42a1.8 1.8 0 0 1 .53-.08 1.87 1.87 0 0 1 1.87 1.87 1.84 1.84 0 0 1-.58 1.34l2.49 2.5a1.86 1.86 0 0 1 1.32-.57 1.87 1.87 0 1 1-1.87 1.87 1.83 1.83 0 0 1 .49-1.24l-2.37-2.37v5.27a1.88 1.88 0 1 1-1.25 0V8.71a1.85 1.85 0 0 1-.95-.62L7.96 5.62l-5.58 5.58a2.04 2.04 0 0 0 0 2.88l8.36 8.36a2.04 2.04 0 0 0 2.88 0l8-8a2.04 2.04 0 0 0 0-2.88z"/></svg>
+      <span>Git Mastery Hub</span>
+    </a>
+    <div class="nav-controls">
+      <a href="0003-history-diffs-and-hygiene.html" class="btn" style="padding: 0.4rem 0.85rem; font-size: 0.82rem;">← Lesson 0003</a>
+      <a href="0005-fast-forward-vs-three-way-merges.html" class="btn" style="padding: 0.4rem 0.85rem; font-size: 0.82rem;">Lesson 0005 →</a>
+      <a href="../reference/04-branching-and-switching.html" class="btn" style="padding: 0.4rem 0.85rem; font-size: 0.82rem;">📄 Reference Card</a>
+      <button id="themeToggleBtn" class="theme-toggle-btn" onclick="toggleTheme()" title="Switch Theme">🌙</button>
+    </div>
+  </nav>
+
+  <div class="container">
+    <header class="lesson-header">
+      <div class="badge-wrapper">
+        <span class="lesson-badge">Lesson 0004 • Module 3</span>
+        <span class="meta-pill">⏱️ 6 min read</span>
+        <span class="meta-pill">🌿 Pointer Simulator</span>
+      </div>
+      <h1>Branches as Lightweight Movable Pointers</h1>
+      <p>Demystify Git branching: discover why Git branches are practically free, how <code>HEAD</code> tracks where you are, and why <code>git switch</code> replaces the confusing legacy <code>git checkout</code>.</p>
+    </header>
+
+    <main>
+      <h2><span class="section-num">1</span> The Truth About Git Branches: It's Just a 41-Byte File!</h2>
+      <p>
+        In older version control systems, creating a "branch" meant copying an entire 500MB directory across the disk. It was slow and wasteful.
+      </p>
+      <p>
+        In Git, <strong>a branch is simply a text file containing 40 hex characters and a newline</strong> stored in <code>.git/refs/heads/</code>. It is literally a pointer to a specific commit. Creating a branch takes 1 millisecond and consumes 41 bytes!
+      </p>
+
+      <h2><span class="section-num">2</span> Meet HEAD: "You Are Here"</h2>
+      <p>
+        If a repository has 5 branches, how does Git know which branch you are actively working on? Through a special pointer called <strong>HEAD</strong>.
+      </p>
+      <div class="callout cyan">
+        <div class="callout-title">🎯 The Pointer Hierarchy</div>
+        <p>
+          Normally, <strong>HEAD</strong> points to a <strong>branch name</strong> (e.g. <code>HEAD -> main</code>), and the <strong>branch name</strong> points to a <strong>commit hash</strong> (e.g. <code>main -> c1a4</code>). When you make a commit, the active branch pointer moves forward automatically with you!
+        </p>
+      </div>
+
+      <h2><span class="section-num">3</span> Modern CLI: "git switch" vs "git checkout"</h2>
+      <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 1.5rem; margin: 1.5rem 0;">
+        <div class="interactive-card">
+          <h3 style="color: var(--accent-emerald);">✨ Modern Verbs (Git 2.23+)</h3>
+          <ul style="padding-left: 1.25rem; font-size: 0.9rem;">
+            <li><code>git switch feature-login</code> — Switch branches</li>
+            <li><code>git switch -c feature-cart</code> — Create & switch in one command</li>
+            <li><code>git restore app.js</code> — Discard file edits (clean separation!)</li>
+          </ul>
+        </div>
+        <div class="interactive-card" style="opacity: 0.85;">
+          <h3 style="color: var(--text-muted);">🕰️ Legacy Overloaded Verb</h3>
+          <ul style="padding-left: 1.25rem; font-size: 0.9rem;">
+            <li><code>git checkout feature-login</code> — Switched branches</li>
+            <li><code>git checkout -b feature-cart</code> — Created & switched</li>
+            <li><code>git checkout -- app.js</code> — Discarded files</li>
+          </ul>
+          <p style="font-size: 0.8rem; color: var(--accent-amber); margin-top: 0.5rem;">
+            <em>Note: <code>git checkout</code> did too many unrelated jobs. Use modern <code>git switch</code> today!</em>
+          </p>
+        </div>
+      </div>
+
+      <h2><span class="section-num">4</span> Interactive Branch Pointer Simulator</h2>
+      <div class="interactive-card">
+        <div class="interactive-card-title">Live Branch Pointer Playground</div>
+        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.5rem;">
+          <button class="btn" onclick="runBranchSim('create')">1. git switch -c feat/login</button>
+          <button class="btn" onclick="runBranchSim('commit')">2. git commit -m "feat: login ui"</button>
+          <button class="btn" onclick="runBranchSim('switch_main')">3. git switch main</button>
+          <button class="btn" onclick="runBranchSim('commit_main')">4. git commit -m "docs: readme"</button>
+          <button class="btn" onclick="runBranchSim('reset')">Reset Graph</button>
+        </div>
+
+        <div id="branchGraph" style="min-height: 140px; display: flex; align-items: center; justify-content: flex-start; gap: 2.5rem; padding: 2.5rem 1.5rem; background: var(--bg-surface-elevated); border-radius: var(--radius-sm); border: 1px solid var(--border-card); overflow-x: auto;">
+          <!-- Node C1 -->
+          <div class="dag-node" id="nodeC1">
+            C1
+            <div id="badgeHead" class="pointer-badge badge-head">HEAD</div>
+            <div id="badgeMain" class="pointer-badge badge-main">main</div>
+            <div id="badgeFeature" class="pointer-badge badge-feature" style="display: none;">feat/login</div>
+          </div>
+        </div>
+
+        <div id="branchSimFeedback" style="margin-top: 1rem; font-family: var(--font-mono); font-size: 0.88rem; color: var(--accent-cyan);">
+          Initial State: HEAD points to main, which points to initial commit C1.
+        </div>
+      </div>
+
+      <h2><span class="section-num">5</span> Knowledge Check</h2>
+      <div class="quiz-container" id="quizLesson4_1">
+        <div class="quiz-question">What physically is a local Git branch on your file system?</div>
+        <div class="quiz-option" onclick="selectOption('quizLesson4_1', 0)">A) A deep clone of the entire working repository directory.</div>
+        <div class="quiz-option" onclick="selectOption('quizLesson4_1', 1)">B) A 41-byte text file inside .git/refs/heads/ storing a commit SHA-1 hash.</div>
+        <div class="quiz-option" onclick="selectOption('quizLesson4_1', 2)">C) A binary diff patch file.</div>
+        <div class="quiz-feedback" id="quizLesson4_1_feedback"></div>
+      </div>
+
+      <div class="quiz-container" id="quizLesson4_2">
+        <div class="quiz-question">Which modern Git command creates a new branch and switches to it in one step?</div>
+        <div class="quiz-option" onclick="selectOption('quizLesson4_2', 0)">A) git switch -c &lt;branch-name&gt;</div>
+        <div class="quiz-option" onclick="selectOption('quizLesson4_2', 1)">B) git branch --jump &lt;branch-name&gt;</div>
+        <div class="quiz-option" onclick="selectOption('quizLesson4_2', 2)">C) git checkout --new &lt;branch-name&gt;</div>
+        <div class="quiz-feedback" id="quizLesson4_2_feedback"></div>
+      </div>
+    </main>
+
+    <footer class="lesson-footer">
+      <div>
+        <a href="0003-history-diffs-and-hygiene.html" class="btn">← Lesson 0003</a>
+      </div>
+      <div class="footer-source">
+        Git Mastery Curriculum • Module 3 • Lesson 0004
+      </div>
+      <div>
+        <a href="0005-fast-forward-vs-three-way-merges.html" class="btn primary">Next: Lesson 0005 (Merging) →</a>
+      </div>
+    </footer>
+  </div>
+
+  <script src="../assets/components.js"></script>
+  <script>
+    initQuiz('quizLesson4_1', {
+      correctIndex: 1,
+      explanation: 'Branches in Git are lightweight pointers: a 41-byte text file in <code>.git/refs/heads/</code> containing the commit SHA hash.'
+    });
+    initQuiz('quizLesson4_2', {
+      correctIndex: 0,
+      explanation: '<code>git switch -c &lt;branch&gt;</code> is the clean modern Git command introduced in version 2.23 to create and switch branches.'
+    });
+
+    let currentStep = 0;
+    function runBranchSim(action) {
+      const graph = document.getElementById('branchGraph');
+      const feedback = document.getElementById('branchSimFeedback');
+      const bHead = document.getElementById('badgeHead');
+      const bMain = document.getElementById('badgeMain');
+      const bFeature = document.getElementById('badgeFeature');
+
+      if (action === 'create') {
+        bFeature.style.display = 'block';
+        bFeature.style.top = '-28px';
+        bMain.style.top = '-28px';
+        bMain.style.left = '-35px';
+        bFeature.style.left = '35px';
+        bHead.style.left = '35px';
+        feedback.innerHTML = `🌿 Created & switched to <strong>feat/login</strong>! HEAD now points to <strong>feat/login</strong>.`;
+      } else if (action === 'commit') {
+        if (!document.getElementById('nodeC2')) {
+          const c2 = document.createElement('div');
+          c2.className = 'dag-node';
+          c2.id = 'nodeC2';
+          c2.innerHTML = `C2`;
+          c2.appendChild(bFeature);
+          c2.appendChild(bHead);
+          graph.appendChild(c2);
+          bFeature.style.left = '0px';
+          bHead.style.left = '0px';
+          feedback.innerHTML = `🎉 Committed C2! Notice: <strong>feat/login</strong> and <strong>HEAD</strong> moved to C2, while <strong>main</strong> stayed at C1!`;
+          triggerConfetti();
+        }
+      } else if (action === 'switch_main') {
+        const c1 = document.getElementById('nodeC1');
+        c1.appendChild(bHead);
+        bHead.style.left = '-35px';
+        feedback.innerHTML = `🔄 Ran <code>git switch main</code>: HEAD now points back to <strong>main</strong> at C1. Your files on disk just flipped back!`;
+      } else if (action === 'commit_main') {
+        if (!document.getElementById('nodeC3')) {
+          const c3 = document.createElement('div');
+          c3.className = 'dag-node';
+          c3.id = 'nodeC3';
+          c3.innerHTML = `C3`;
+          c3.appendChild(bMain);
+          c3.appendChild(bHead);
+          bMain.style.left = '0px';
+          bHead.style.left = '0px';
+          graph.appendChild(c3);
+          feedback.innerHTML = `💥 Divergence! Committed C3 on main. You now have two parallel universes branching from C1!`;
+          triggerConfetti();
+        }
+      } else if (action === 'reset') {
+        location.reload();
+      }
+    }
+  </script>
+</body>
+</html>

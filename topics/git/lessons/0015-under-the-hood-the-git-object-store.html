@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lesson 0015: Under the Hood: The Git Object Store</title>
+  <link rel="stylesheet" href="../assets/style.css">
+  <style>
+    .obj-node {
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border-card);
+      border-radius: var(--radius-sm);
+      padding: 1rem;
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+    }
+  </style>
+</head>
+<body>
+  <div id="topProgressBar" class="top-progress-bar"></div>
+
+  <nav class="sticky-nav">
+    <a href="0014-the-ultimate-safety-net-reflog-and-detached-head.html" class="nav-brand">
+      <svg class="nav-logo-icon" viewBox="0 0 24 24"><path d="M21.62 10.74l-8.36-8.36a2.04 2.04 0 0 0-2.88 0l-2 2a.37.37 0 0 0 0 .52l2.42 2.42a1.8 1.8 0 0 1 .53-.08 1.87 1.87 0 0 1 1.87 1.87 1.84 1.84 0 0 1-.58 1.34l2.49 2.5a1.86 1.86 0 0 1 1.32-.57 1.87 1.87 0 1 1-1.87 1.87 1.83 1.83 0 0 1 .49-1.24l-2.37-2.37v5.27a1.88 1.88 0 1 1-1.25 0V8.71a1.85 1.85 0 0 1-.95-.62L7.96 5.62l-5.58 5.58a2.04 2.04 0 0 0 0 2.88l8.36 8.36a2.04 2.04 0 0 0 2.88 0l8-8a2.04 2.04 0 0 0 0-2.88z"/></svg>
+      <span>Git Mastery Hub</span>
+    </a>
+    <div class="nav-controls">
+      <a href="0014-the-ultimate-safety-net-reflog-and-detached-head.html" class="btn" style="padding: 0.4rem 0.85rem; font-size: 0.82rem;">← Lesson 0014</a>
+      <a href="../reference/15-git-object-store-internals.html" class="btn" style="padding: 0.4rem 0.85rem; font-size: 0.82rem;">📄 Reference Card</a>
+      <button id="themeToggleBtn" class="theme-toggle-btn" onclick="toggleTheme()" title="Switch Theme">🌙</button>
+    </div>
+  </nav>
+
+  <div class="container">
+    <header class="lesson-header">
+      <div class="badge-wrapper">
+        <span class="lesson-badge">Lesson 0015 • Module 7 • Capstone</span>
+        <span class="meta-pill">⏱️ 9 min read</span>
+        <span class="meta-pill">🔍 Object Store Explorer</span>
+      </div>
+      <h1>Under the Hood: The Git Object Store</h1>
+      <p>The capstone of your Git journey: look directly into <code>.git/objects/</code>, understand the 4 immutable primitives (blobs, trees, commits, tags), and master Git plumbing commands.</p>
+    </header>
+
+    <main>
+      <h2><span class="section-num">1</span> Git is a Content-Addressed Key-Value Store</h2>
+      <p>
+        Beneath the polished CLI commands (<code>add</code>, <code>commit</code>, <code>checkout</code>), Git is fundamentally an astonishingly simple, elegant key-value database:
+      </p>
+      <div class="callout cyan">
+        <div class="callout-title">🔑 Key-Value Architecture</div>
+        <p>
+          <strong>Key</strong>: The 40-character SHA-1 hash of the compressed data.<br>
+          <strong>Value</strong>: The compressed binary data stored at <code>.git/objects/ab/12345...</code>.
+        </p>
+      </div>
+
+      <h2><span class="section-num">2</span> The 4 Core Git Objects</h2>
+      <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1.5rem 0;">
+        <div class="interactive-card">
+          <h3 style="color: var(--accent-cyan);">1. Blobs (Binary Large Objects)</h3>
+          <p style="font-size: 0.88rem; color: var(--text-secondary);">
+            Pure raw file data. Blobs contain <strong>no filenames, directory paths, or timestamps</strong>. If 10 files in your repository have the exact same content, Git stores only 1 blob!
+          </p>
+          <h3 style="color: var(--accent-emerald); margin-top: 1rem;">2. Trees (Directories)</h3>
+          <p style="font-size: 0.88rem; color: var(--text-secondary);">
+            Represents a directory folder. A tree object maps human-friendly filenames and file permissions to blob hashes or child subtree hashes.
+          </p>
+        </div>
+
+        <div class="interactive-card">
+          <h3 style="color: var(--accent-purple);">3. Commits (Snapshots)</h3>
+          <p style="font-size: 0.88rem; color: var(--text-secondary);">
+            A 200-byte text metadata file pointing to:
+            <ul style="padding-left: 1rem; margin-top: 0.25rem;">
+              <li>The root <strong>Tree SHA</strong> of the project</li>
+              <li>Parent commit SHA(s)</li>
+              <li>Author and committer identity</li>
+              <li>Commit message</li>
+            </ul>
+          </p>
+          <h3 style="color: var(--accent-amber); margin-top: 0.75rem;">4. Annotated Tags</h3>
+          <p style="font-size: 0.88rem; color: var(--text-secondary);">
+            A permanent reference pointer tied to a specific commit with release notes and GPG signatures.
+          </p>
+        </div>
+      </div>
+
+      <h2><span class="section-num">3</span> The Swiss Army Knife: git cat-file</h2>
+      <p>
+        The official plumbing command to inspect raw Git objects is <code>git cat-file</code>:
+      </p>
+      <div class="terminal-window">
+        <div class="terminal-body">
+          <span style="color: var(--text-muted);"># Check object type: blob, tree, or commit</span><br>
+          <span class="terminal-prompt">$</span> <span class="terminal-cmd">git cat-file -t e4a19b2</span><br>
+          <div class="terminal-output">commit</div><br>
+          <span style="color: var(--text-muted);"># Pretty-print contents of an object</span><br>
+          <span class="terminal-prompt">$</span> <span class="terminal-cmd">git cat-file -p e4a19b2</span><br>
+          <div class="terminal-output">
+            tree 9a8c14f5...<br>
+            parent 3d21b01a...<br>
+            author Sandip Kumbhar &lt;sandip@example.com&gt; 1730590000 +0530<br>
+            committer Sandip Kumbhar &lt;sandip@example.com&gt; 1730590000 +0530<br><br>
+            feat: implement real-time analytics
+          </div>
+        </div>
+      </div>
+
+      <h2><span class="section-num">4</span> Interactive Object Database Explorer</h2>
+      <div class="interactive-card">
+        <div class="interactive-card-title">Live .git/objects/ Anatomy Visualizer</div>
+        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.25rem;">
+          <button class="btn" onclick="exploreObject('commit')">1. Inspect Commit Object</button>
+          <button class="btn" onclick="exploreObject('tree')">2. Inspect Root Tree Object</button>
+          <button class="btn" onclick="exploreObject('blob')">3. Inspect Blob Object (app.js)</button>
+          <button class="btn" onclick="exploreObject('reset')">Reset</button>
+        </div>
+
+        <div class="terminal-window">
+          <div class="terminal-header">
+            <div class="terminal-dots"><span class="terminal-dot red"></span><span class="terminal-dot yellow"></span><span class="terminal-dot green"></span></div>
+            <div>git cat-file -p inspector</div>
+          </div>
+          <div class="terminal-body" id="objectInspectorBody">
+            <div style="color: var(--text-muted);">Click button 1 above to inspect a real Commit object!</div>
+          </div>
+        </div>
+
+        <div id="objectNotice" style="margin-top: 0.75rem; font-family: var(--font-mono); font-size: 0.88rem; color: var(--accent-cyan);">
+          Explore how Git reconstructs your entire hard drive from SHA objects!
+        </div>
+      </div>
+
+      <h2><span class="section-num">5</span> Knowledge Check</h2>
+      <div class="quiz-container" id="quizLesson15_1">
+        <div class="quiz-question">Does a Git blob object store the filename or file permissions?</div>
+        <div class="quiz-option" onclick="selectOption('quizLesson15_1', 0)">A) Yes, all file metadata is stored in the blob header.</div>
+        <div class="quiz-option" onclick="selectOption('quizLesson15_1', 1)">B) No. Blobs only store raw file contents. Filenames and permissions are stored in Tree objects.</div>
+        <div class="quiz-option" onclick="selectOption('quizLesson15_1', 2)">C) Only on Linux file systems.</div>
+        <div class="quiz-feedback" id="quizLesson15_1_feedback"></div>
+      </div>
+    </main>
+
+    <footer class="lesson-footer">
+      <div>
+        <a href="0014-the-ultimate-safety-net-reflog-and-detached-head.html" class="btn">← Lesson 0014</a>
+      </div>
+      <div class="footer-source">
+        Git Mastery Curriculum • Module 7 • Capstone Completed! 🎓
+      </div>
+      <div>
+        <a href="../reference/15-git-object-store-internals.html" class="btn primary">View Capstone Reference #15 →</a>
+      </div>
+    </footer>
+  </div>
+
+  <script src="../assets/components.js"></script>
+  <script>
+    initQuiz('quizLesson15_1', {
+      correctIndex: 1,
+      explanation: 'Blobs are pure content-addressed data. Filenames, directory hierarchies, and file mode bits (chmod) are stored exclusively in Tree objects.'
+    });
+
+    function exploreObject(type) {
+      const body = document.getElementById('objectInspectorBody');
+      const notice = document.getElementById('objectNotice');
+
+      if (type === 'commit') {
+        body.innerHTML = `
+          <div><span class="terminal-prompt">$</span> <span class="terminal-cmd">git cat-file -p 7f21a0b</span></div>
+          <div><span style="color: var(--accent-emerald);">tree 4a8c901e...</span> (Points to project folder)</div>
+          <div><span style="color: var(--accent-cyan);">parent 1e33d02a...</span> (Previous commit)</div>
+          <div>author Learner &lt;learner@hub.local&gt; 1730592000 +0000</div>
+          <div>committer Learner &lt;learner@hub.local&gt; 1730592000 +0000</div>
+          <br>
+          <div style="color: var(--accent-purple); font-weight: 700;">feat: complete Git mastery capstone</div>
+        `;
+        notice.innerHTML = `📦 Commit object revealed! It points to root Tree <code>4a8c901e...</code>. Click button 2 to inspect the tree!`;
+      } else if (type === 'tree') {
+        body.innerHTML = `
+          <div><span class="terminal-prompt">$</span> <span class="terminal-cmd">git cat-file -p 4a8c901e</span></div>
+          <div>100644 blob <span style="color: var(--accent-cyan);">e69de29b...</span>   README.md</div>
+          <div>100644 blob <span style="color: var(--accent-cyan);">8a109fe2...</span>   app.js</div>
+          <div>040000 tree <span style="color: var(--accent-emerald);">3c21a44f...</span>   src</div>
+        `;
+        notice.innerHTML = `🌿 Tree object mapped filenames to blob hashes! Notice: file names are here, not in blobs. Click button 3 to inspect app.js!`;
+      } else if (type === 'blob') {
+        body.innerHTML = `
+          <div><span class="terminal-prompt">$</span> <span class="terminal-cmd">git cat-file -p 8a109fe2</span></div>
+          <div style="color: var(--accent-emerald);">const server = require('http').createServer();</div>
+          <div style="color: var(--accent-emerald);">server.listen(process.env.PORT || 8080);</div>
+          <div style="color: var(--accent-emerald);">console.log('Production server ready.');</div>
+        `;
+        notice.innerHTML = `🎉 Pure file bytes! This is the core truth of Git: everything is content-addressed SHA hashes. Full Git mastery unlocked!`;
+        triggerConfetti();
+      } else if (type === 'reset') {
+        location.reload();
+      }
+    }
+  </script>
+</body>
+</html>

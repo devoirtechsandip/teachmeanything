@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lesson 0013: PR-Ready Interactive Rebase (git rebase -i)</title>
+  <link rel="stylesheet" href="../assets/style.css">
+  <style>
+    .rebase-todo-sheet {
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border-card);
+      border-radius: var(--radius-sm);
+      padding: 1.25rem;
+      font-family: var(--font-mono);
+      font-size: 0.88rem;
+      line-height: 1.7;
+      margin: 1.5rem 0;
+    }
+  </style>
+</head>
+<body>
+  <div id="topProgressBar" class="top-progress-bar"></div>
+
+  <nav class="sticky-nav">
+    <a href="0012-rebase-vs-merge-clean-linear-history.html" class="nav-brand">
+      <svg class="nav-logo-icon" viewBox="0 0 24 24"><path d="M21.62 10.74l-8.36-8.36a2.04 2.04 0 0 0-2.88 0l-2 2a.37.37 0 0 0 0 .52l2.42 2.42a1.8 1.8 0 0 1 .53-.08 1.87 1.87 0 0 1 1.87 1.87 1.84 1.84 0 0 1-.58 1.34l2.49 2.5a1.86 1.86 0 0 1 1.32-.57 1.87 1.87 0 1 1-1.87 1.87 1.83 1.83 0 0 1 .49-1.24l-2.37-2.37v5.27a1.88 1.88 0 1 1-1.25 0V8.71a1.85 1.85 0 0 1-.95-.62L7.96 5.62l-5.58 5.58a2.04 2.04 0 0 0 0 2.88l8.36 8.36a2.04 2.04 0 0 0 2.88 0l8-8a2.04 2.04 0 0 0 0-2.88z"/></svg>
+      <span>Git Mastery Hub</span>
+    </a>
+    <div class="nav-controls">
+      <a href="0012-rebase-vs-merge-clean-linear-history.html" class="btn" style="padding: 0.4rem 0.85rem; font-size: 0.82rem;">← Lesson 0012</a>
+      <a href="0014-the-ultimate-safety-net-reflog-and-detached-head.html" class="btn" style="padding: 0.4rem 0.85rem; font-size: 0.82rem;">Lesson 0014 →</a>
+      <a href="../reference/13-interactive-rebase-pr-hygiene.html" class="btn" style="padding: 0.4rem 0.85rem; font-size: 0.82rem;">📄 Reference Card</a>
+      <button id="themeToggleBtn" class="theme-toggle-btn" onclick="toggleTheme()" title="Switch Theme">🌙</button>
+    </div>
+  </nav>
+
+  <div class="container">
+    <header class="lesson-header">
+      <div class="badge-wrapper">
+        <span class="lesson-badge">Lesson 0013 • Module 6</span>
+        <span class="meta-pill">⏱️ 8 min read</span>
+        <span class="meta-pill">🛠️ Interactive Squash Editor</span>
+      </div>
+      <h1>PR-Ready Interactive Rebase (git rebase -i)</h1>
+      <p>Transform messy local hacking into clean Pull Requests: learn how to squash typo fixes, reword sloppy commit messages, and safely push with <code>--force-with-lease</code>.</p>
+    </header>
+
+    <main>
+      <h2><span class="section-num">1</span> The Anatomy of a Messy Branch</h2>
+      <p>
+        When developing locally, your commit log often looks like this:
+      </p>
+      <div class="terminal-window">
+        <div class="terminal-body" style="color: var(--text-muted);">
+          * 91a4b12 fix typo in variable name<br>
+          * 5c2190f oops forgot semicolons<br>
+          * 120fb34 wip button styling<br>
+          * 8a21390 feat: add checkout payment modal
+        </div>
+      </div>
+      <p>
+        Submitting this as a Pull Request will frustrate code reviewers. With <strong>Interactive Rebase</strong>, you can condense those 4 messy commits into <strong>1 perfect, atomic commit</strong> before anyone else sees it.
+      </p>
+
+      <h2><span class="section-num">2</span> The Interactive Command Verbs</h2>
+      <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1.5rem 0;">
+        <div class="interactive-card">
+          <h3 style="color: var(--accent-cyan);"><code>pick</code></h3>
+          <p style="font-size: 0.88rem; color: var(--text-secondary);">Keep the commit as-is.</p>
+          <h3 style="color: var(--accent-amber); margin-top: 0.75rem;"><code>reword</code></h3>
+          <p style="font-size: 0.88rem; color: var(--text-secondary);">Keep the code changes, but open editor to write a better commit message.</p>
+        </div>
+        <div class="interactive-card">
+          <h3 style="color: var(--accent-emerald);"><code>fixup</code></h3>
+          <p style="font-size: 0.88rem; color: var(--text-secondary);">Meld this commit into previous commit and discard its commit message (ideal for typo fixes!).</p>
+          <h3 style="color: var(--accent-purple); margin-top: 0.75rem;"><code>squash</code></h3>
+          <p style="font-size: 0.88rem; color: var(--text-secondary);">Meld this commit into previous commit and combine both commit messages.</p>
+        </div>
+      </div>
+
+      <h2><span class="section-num">3</span> Safe Remote Publication: --force-with-lease</h2>
+      <div class="callout amber">
+        <div class="callout-title">🛡️ Never Use Bare --force</div>
+        <p>
+          If you previously pushed your feature branch to GitHub and then rebased it locally, standard <code>git push</code> will be rejected. <strong>Never run <code>git push --force</code></strong> (it can destroy teammate commits if they pushed to your branch!).<br>
+          Always use <code>git push --force-with-lease</code>: it verifies nobody else updated the remote before updating it.
+        </p>
+      </div>
+
+      <h2><span class="section-num">4</span> Interactive Squash Simulator</h2>
+      <div class="interactive-card">
+        <div class="interactive-card-title">Live git rebase -i Simulator</div>
+        <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 1rem;">
+          Below is your Git interactive rebase instruction sheet. Click 'Squash & Clean' to turn the typo commits into <code>fixup</code>:
+        </p>
+
+        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem;">
+          <button class="btn" onclick="simInteractive('squash')">Clean with fixup (PR Hygiene)</button>
+          <button class="btn" onclick="simInteractive('execute')">Execute Rebase</button>
+          <button class="btn" onclick="simInteractive('reset')">Reset</button>
+        </div>
+
+        <div class="rebase-todo-sheet" id="rebaseTodoBody">
+          <span style="color: var(--accent-cyan); font-weight: 700;">pick</span> 8a21390 feat: add checkout payment modal<br>
+          <span style="color: var(--accent-cyan); font-weight: 700;">pick</span> 120fb34 wip button styling<br>
+          <span style="color: var(--accent-cyan); font-weight: 700;">pick</span> 5c2190f oops forgot semicolons<br>
+          <span style="color: var(--accent-cyan); font-weight: 700;">pick</span> 91a4b12 fix typo in variable name
+        </div>
+
+        <div id="interactiveFeedback" style="font-family: var(--font-mono); font-size: 0.88rem; color: var(--accent-cyan);">
+          Initial State: 4 separate messy commits. Click 'Clean with fixup' above!
+        </div>
+      </div>
+
+      <h2><span class="section-num">5</span> Knowledge Check</h2>
+      <div class="quiz-container" id="quizLesson13_1">
+        <div class="quiz-question">Which rebase action merges a commit into the parent above it and discards the child's commit message?</div>
+        <div class="quiz-option" onclick="selectOption('quizLesson13_1', 0)">A) fixup</div>
+        <div class="quiz-option" onclick="selectOption('quizLesson13_1', 1)">B) drop</div>
+        <div class="quiz-option" onclick="selectOption('quizLesson13_1', 2)">C) exec</div>
+        <div class="quiz-feedback" id="quizLesson13_1_feedback"></div>
+      </div>
+    </main>
+
+    <footer class="lesson-footer">
+      <div>
+        <a href="0012-rebase-vs-merge-clean-linear-history.html" class="btn">← Lesson 0012</a>
+      </div>
+      <div class="footer-source">
+        Git Mastery Curriculum • Module 6 • Lesson 0013
+      </div>
+      <div>
+        <a href="0014-the-ultimate-safety-net-reflog-and-detached-head.html" class="btn primary">Next: Lesson 0014 (Reflog) →</a>
+      </div>
+    </footer>
+  </div>
+
+  <script src="../assets/components.js"></script>
+  <script>
+    initQuiz('quizLesson13_1', {
+      correctIndex: 0,
+      explanation: '<code>fixup</code> combines the changes into the previous commit while automatically discarding the redundant commit message.'
+    });
+
+    function simInteractive(action) {
+      const todo = document.getElementById('rebaseTodoBody');
+      const feedback = document.getElementById('interactiveFeedback');
+
+      if (action === 'squash') {
+        todo.innerHTML = `
+          <span style="color: var(--accent-cyan); font-weight: 700;">pick</span> 8a21390 feat: add checkout payment modal<br>
+          <span style="color: var(--accent-emerald); font-weight: 700;">fixup</span> 120fb34 wip button styling<br>
+          <span style="color: var(--accent-emerald); font-weight: 700;">fixup</span> 5c2190f oops forgot semicolons<br>
+          <span style="color: var(--accent-emerald); font-weight: 700;">fixup</span> 91a4b12 fix typo in variable name
+        `;
+        feedback.innerHTML = `📝 Todo sheet prepared! Commits 2, 3, and 4 will be melted into the initial feat commit. Click 'Execute Rebase' now!`;
+      } else if (action === 'execute') {
+        todo.innerHTML = `
+          <div style="color: var(--accent-emerald); font-weight: 700;">[Clean Log Sealed]:</div>
+          <div>* <span style="color: var(--accent-cyan);">a7c419e</span> (HEAD -> feat/checkout) feat: add checkout payment modal</div>
+        `;
+        feedback.innerHTML = `🎉 Successfully rebased! 4 sloppy commits condensed into 1 pristine, production-ready atomic commit. Ready for Pull Request review!`;
+        triggerConfetti();
+      } else if (action === 'reset') {
+        location.reload();
+      }
+    }
+  </script>
+</body>
+</html>

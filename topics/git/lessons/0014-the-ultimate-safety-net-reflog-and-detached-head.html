@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lesson 0014: The Ultimate Safety Net: git reflog & Detached HEAD</title>
+  <link rel="stylesheet" href="../assets/style.css">
+  <style>
+    .reflog-entry {
+      font-family: var(--font-mono);
+      font-size: 0.88rem;
+      padding: 0.5rem 0.75rem;
+      border-bottom: 1px solid var(--border-card);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+  </style>
+</head>
+<body>
+  <div id="topProgressBar" class="top-progress-bar"></div>
+
+  <nav class="sticky-nav">
+    <a href="0013-pr-ready-interactive-rebase.html" class="nav-brand">
+      <svg class="nav-logo-icon" viewBox="0 0 24 24"><path d="M21.62 10.74l-8.36-8.36a2.04 2.04 0 0 0-2.88 0l-2 2a.37.37 0 0 0 0 .52l2.42 2.42a1.8 1.8 0 0 1 .53-.08 1.87 1.87 0 0 1 1.87 1.87 1.84 1.84 0 0 1-.58 1.34l2.49 2.5a1.86 1.86 0 0 1 1.32-.57 1.87 1.87 0 1 1-1.87 1.87 1.83 1.83 0 0 1 .49-1.24l-2.37-2.37v5.27a1.88 1.88 0 1 1-1.25 0V8.71a1.85 1.85 0 0 1-.95-.62L7.96 5.62l-5.58 5.58a2.04 2.04 0 0 0 0 2.88l8.36 8.36a2.04 2.04 0 0 0 2.88 0l8-8a2.04 2.04 0 0 0 0-2.88z"/></svg>
+      <span>Git Mastery Hub</span>
+    </a>
+    <div class="nav-controls">
+      <a href="0013-pr-ready-interactive-rebase.html" class="btn" style="padding: 0.4rem 0.85rem; font-size: 0.82rem;">← Lesson 0013</a>
+      <a href="0015-under-the-hood-the-git-object-store.html" class="btn" style="padding: 0.4rem 0.85rem; font-size: 0.82rem;">Lesson 0015 →</a>
+      <a href="../reference/14-git-reflog-and-recovery.html" class="btn" style="padding: 0.4rem 0.85rem; font-size: 0.82rem;">📄 Reference Card</a>
+      <button id="themeToggleBtn" class="theme-toggle-btn" onclick="toggleTheme()" title="Switch Theme">🌙</button>
+    </div>
+  </nav>
+
+  <div class="container">
+    <header class="lesson-header">
+      <div class="badge-wrapper">
+        <span class="lesson-badge">Lesson 0014 • Module 7</span>
+        <span class="meta-pill">⏱️ 8 min read</span>
+        <span class="meta-pill">🛡️ Reflog Recovery Console</span>
+      </div>
+      <h1>The Ultimate Safety Net: git reflog & Detached HEAD</h1>
+      <p>Never fear breaking your repo again: learn how <code>git reflog</code> records every single step you take, how to resurrect deleted commits and branches from the dead, and how to tame the Detached HEAD state.</p>
+    </header>
+
+    <main>
+      <h2><span class="section-num">1</span> The Secret Truth: Git Almost Never Deletes Anything!</h2>
+      <p>
+        When you run <code>git reset --hard</code> or delete a branch with <code>git branch -D feat/cart</code>, it feels like your code vanished into thin air.
+      </p>
+      <p>
+        <strong>It didn't!</strong> The commits and files are still sitting inside the <code>.git/objects/</code> database. All you did was delete the 41-byte pointer file. Because Git maintains a private internal diary called the <strong>Reflog</strong> (Reference Log), you can pinpoint the exact commit hash and bring it right back!
+      </p>
+
+      <h2><span class="section-num">2</span> Inspecting the Reflog Diary</h2>
+      <p>
+        Run <code>git reflog</code> to see a chronological journal of every time HEAD moved:
+      </p>
+      <div class="terminal-window">
+        <div class="terminal-body">
+          <span class="terminal-prompt">$</span> <span class="terminal-cmd">git reflog</span><br>
+          <div class="terminal-output">
+            <span style="color: var(--accent-cyan);">e1a4b90</span> HEAD@{0}: reset: moving to HEAD~1 (Accidental Hard Reset!)<br>
+            <span style="color: var(--accent-emerald);">8b32104</span> HEAD@{1}: commit: feat: awesome new search bar (The "lost" commit!)<br>
+            <span style="color: var(--accent-purple);">4d9e210</span> HEAD@{2}: checkout: moving from main to feat/search
+          </div>
+        </div>
+      </div>
+
+      <div class="callout emerald">
+        <div class="callout-title">🎉 The 1-Line Resurrection Spell</div>
+        <p>
+          To recover that "lost" commit <code>8b32104</code> into a brand-new branch, simply run:
+          <br>
+          <code>git switch -c recovered-search 8b32104</code>
+          <br>
+          Instantly, Git attaches a new branch pointer to that commit and restores your files!
+        </p>
+      </div>
+
+      <h2><span class="section-num">3</span> Demystifying "Detached HEAD"</h2>
+      <p>
+        If you run <code>git checkout &lt;commit-hash&gt;</code> instead of a branch name, Git displays a scary warning: <em>"You are in 'detached HEAD' state"</em>.
+      </p>
+      <p>
+        <strong>All this means is:</strong> <code>HEAD</code> is pointing directly to a commit number instead of pointing to a branch label. Any new commits you make will not have a branch name.
+        To keep them, simply give them a branch name: <code>git switch -c my-saved-work</code>!
+      </p>
+
+      <h2><span class="section-num">4</span> Interactive Reflog Rescue Simulator</h2>
+      <div class="interactive-card">
+        <div class="interactive-card-title">Live Disaster Recovery Console</div>
+        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.25rem;">
+          <button class="btn" onclick="simReflog('disaster')">1. Simulate Disaster (git reset --hard HEAD~1)</button>
+          <button class="btn" onclick="simReflog('inspect')">2. Open git reflog</button>
+          <button class="btn" onclick="simReflog('rescue')">3. Resurrect with git switch -c</button>
+          <button class="btn" onclick="simReflog('reset')">Reset</button>
+        </div>
+
+        <div class="terminal-window">
+          <div class="terminal-header">
+            <div class="terminal-dots"><span class="terminal-dot red"></span><span class="terminal-dot yellow"></span><span class="terminal-dot green"></span></div>
+            <div>git terminal recovery lab</div>
+          </div>
+          <div class="terminal-body" id="reflogConsoleBody">
+            <div>Current Branch: <strong>main</strong></div>
+            <div>* <span style="color: var(--accent-emerald);">8b32104</span> feat: valuable 200-line search feature (HEAD -> main)</div>
+            <div>* <span style="color: var(--text-muted);">4d9e210</span> init: base project structure</div>
+          </div>
+        </div>
+
+        <div id="reflogNotice" style="margin-top: 0.75rem; font-family: var(--font-mono); font-size: 0.88rem; color: var(--accent-cyan);">
+          Click '1. Simulate Disaster' to trigger an accidental hard reset!
+        </div>
+      </div>
+
+      <h2><span class="section-num">5</span> Knowledge Check</h2>
+      <div class="quiz-container" id="quizLesson14_1">
+        <div class="quiz-question">How long does Git typically retain unreferenced or "lost" commits before garbage collecting them?</div>
+        <div class="quiz-option" onclick="selectOption('quizLesson14_1', 0)">A) 30 to 90 days.</div>
+        <div class="quiz-option" onclick="selectOption('quizLesson14_1', 1)">B) Exactly 5 seconds.</div>
+        <div class="quiz-option" onclick="selectOption('quizLesson14_1', 2)">C) They are deleted the moment you close the terminal.</div>
+        <div class="quiz-feedback" id="quizLesson14_1_feedback"></div>
+      </div>
+    </main>
+
+    <footer class="lesson-footer">
+      <div>
+        <a href="0013-pr-ready-interactive-rebase.html" class="btn">← Lesson 0013</a>
+      </div>
+      <div class="footer-source">
+        Git Mastery Curriculum • Module 7 • Lesson 0014
+      </div>
+      <div>
+        <a href="0015-under-the-hood-the-git-object-store.html" class="btn primary">Next: Lesson 0015 (Internals) →</a>
+      </div>
+    </footer>
+  </div>
+
+  <script src="../assets/components.js"></script>
+  <script>
+    initQuiz('quizLesson14_1', {
+      correctIndex: 0,
+      explanation: 'Git preserves unreachable commits in the local object store for at least 30 (unreferenced) to 90 (reflog expiration) days before <code>git gc</code> prunes them.'
+    });
+
+    function simReflog(step) {
+      const consoleEl = document.getElementById('reflogConsoleBody');
+      const notice = document.getElementById('reflogNotice');
+
+      if (step === 'disaster') {
+        consoleEl.innerHTML = `
+          <div style="color: var(--accent-rose); font-weight: 700;">💥 Ran: git reset --hard HEAD~1</div>
+          <div>HEAD is now at 4d9e210 init: base project structure</div>
+          <div style="color: var(--accent-rose); margin-top: 0.5rem;">[PANIC]: Commit 8b32104 disappeared from git log! Did we lose our feature?</div>
+        `;
+        notice.innerHTML = `🚨 Don't panic! Click '2. Open git reflog' to inspect your private recovery diary!`;
+      } else if (step === 'inspect') {
+        consoleEl.innerHTML = `
+          <div><span class="terminal-prompt">$</span> <span class="terminal-cmd">git reflog</span></div>
+          <div style="color: var(--accent-rose);">4d9e210 HEAD@{0}: reset: moving to HEAD~1</div>
+          <div style="color: var(--accent-emerald); font-weight: 700;">8b32104 HEAD@{1}: commit: feat: valuable 200-line search feature</div>
+          <div>4d9e210 HEAD@{2}: checkout: moving from main</div>
+        `;
+        notice.innerHTML = `🔍 Found it! Commit <code>8b32104</code> is right there in HEAD@{1}. Click '3. Resurrect' to restore it!`;
+      } else if (step === 'rescue') {
+        consoleEl.innerHTML = `
+          <div><span class="terminal-prompt">$</span> <span class="terminal-cmd">git switch -c recovered-search 8b32104</span></div>
+          <div style="color: var(--accent-emerald); font-weight: 700;">Switched to a new branch 'recovered-search'!</div>
+          <div>* <span style="color: var(--accent-emerald);">8b32104</span> feat: valuable 200-line search feature (HEAD -> recovered-search)</div>
+          <div>* <span style="color: var(--accent-cyan);">4d9e210</span> init: base project structure</div>
+        `;
+        notice.innerHTML = `🎉 RESURRECTED! The feature branch has been restored with 100% of your code intact!`;
+        triggerConfetti();
+      } else if (step === 'reset') {
+        location.reload();
+      }
+    }
+  </script>
+</body>
+</html>
