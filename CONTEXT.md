@@ -13,6 +13,7 @@ This document establishes canonical terminology and ubiquitous language for the 
 - **Sequenced Commits & Audit History**: Early topic branch creation, 3-Commit Gate Standard, persistent `.triage/` or `.features/` tracking, and automated PR opening for human review per [ADR 0007](file:///workspaces/teachmeanything/docs/adr/0007-sequenced-commit-git-lifecycle-and-persistent-triage.md) and [ADR 0008](file:///workspaces/teachmeanything/docs/adr/0008-feature-development-lifecycle-and-grilling-gate.md).
 - **Cross-IDE Distribution**: Full parity across Antigravity (`.agents/`), Cursor (`.cursor/`), and GitHub Copilot (`.github/`) per [ADR 0006](file:///workspaces/teachmeanything/docs/adr/0006-multi-ide-agent-parity.md).
 - **Continuous Documentation Synchronization**: Pre-verification documentation sync (`/doc-sync`), QA Axis A documentation freshness hard gate, and Commit 3 packaging per [ADR 0010](file:///Users/sandipkumbhar/Documents/Personal/teachmeanything/docs/adr/0010-continuous-documentation-synchronization.md).
+- **Repository Gap Analysis & Audit System**: 6-axis technical health audit, stack autodetection, interactive dry-run triage matrix, issue deduplication, and automated GitHub issue provisioning per [ADR 0011](file:///Users/sandipkumbhar/Documents/Personal/teachmeanything/docs/adr/0011-repository-gap-analysis-and-audit-skill.md).
 
 ---
 
@@ -48,6 +49,7 @@ This document establishes canonical terminology and ubiquitous language for the 
 | **Live Deployment Pipeline** | Dual-mode GitHub Actions workflow (`.github/workflows/deploy.yml`) delivering production to GitHub Pages (`https://devoirtechsandip.github.io/teachmeanything/`) and optional preview branches. |
 | **Live Lesson Badges** | Markdown badges linking repository documentation and learning records directly to live web simulators. |
 | **Doc Sync (`doc-sync`)** | Pre-verification audit and sync of ubiquitous language (`CONTEXT.md` / `GLOSSARY.md`), ADRs (`docs/adr/`), user guides (`README.md`), and dashboard (`index.html`) per [ADR 0010](file:///Users/sandipkumbhar/Documents/Personal/teachmeanything/docs/adr/0010-continuous-documentation-synchronization.md). |
+| **Repo Audit (`repo-audit`)** | 6-axis technical health audit, stack autodetection, interactive dry-run triage matrix, issue deduplication, and automated GitHub issue provisioning per [ADR 0011](file:///Users/sandipkumbhar/Documents/Personal/teachmeanything/docs/adr/0011-repository-gap-analysis-and-audit-skill.md). |
 
 ---
 
@@ -148,3 +150,16 @@ This document establishes canonical terminology and ubiquitous language for the 
                         ▼
              [Feature PR Ready on GitHub]
 ```
+
+
+---
+
+## 6. Repository Gap Analysis & Audit System
+
+| Capability / Concept | Description & Invariants |
+| :--- | :--- |
+| **Repo Audit Orchestrator (`repo-audit`)** | Master audit coordinator that evaluates an arbitrary or current repository across 6 technical axes against industry best practices and codified standards. |
+| **6-Axis Gap Taxonomy** | Structured categorization covering (1) Documentation Gaps, (2) Test Coverage Gaps, (3) Security Gaps & Vulnerabilities, (4) Architecture Gaps, (5) Frontend/UI Gaps, and (6) DevOps/CI-CD Gaps. |
+| **Stack Profile** | Autodetected manifest of repository languages, package managers, test harnesses, frameworks, and deployment workflows used to ground contextual evaluations. |
+| **Interactive Dry-Run Matrix** | Pre-issue review report ranking findings by priority (P0–P3), providing remediation blueprints, and requiring user confirmation prior to GitHub issue creation. |
+| **Issue Deduplication Engine** | Pre-flight query against GitHub issues (`gh issue list --state all`) matching issue titles and semantic keywords to prevent creating duplicate tickets. |
