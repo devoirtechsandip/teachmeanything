@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lesson 0011: Shelving Work in Progress with git stash</title>
+  <link rel="stylesheet" href="../assets/style.css">
+  <style>
+    .stash-shelf {
+      background: var(--bg-surface-elevated);
+      border: 1px dashed var(--accent-purple);
+      border-radius: var(--radius-sm);
+      padding: 1.25rem;
+      margin: 1.5rem 0;
+      min-height: 80px;
+    }
+  </style>
+</head>
+<body>
+  <div id="topProgressBar" class="top-progress-bar"></div>
+
+  <nav class="sticky-nav">
+    <a href="0010-safe-undos-vs-history-rewrites-revert-vs-reset.html" class="nav-brand">
+      <svg class="nav-logo-icon" viewBox="0 0 24 24"><path d="M21.62 10.74l-8.36-8.36a2.04 2.04 0 0 0-2.88 0l-2 2a.37.37 0 0 0 0 .52l2.42 2.42a1.8 1.8 0 0 1 .53-.08 1.87 1.87 0 0 1 1.87 1.87 1.84 1.84 0 0 1-.58 1.34l2.49 2.5a1.86 1.86 0 0 1 1.32-.57 1.87 1.87 0 1 1-1.87 1.87 1.83 1.83 0 0 1 .49-1.24l-2.37-2.37v5.27a1.88 1.88 0 1 1-1.25 0V8.71a1.85 1.85 0 0 1-.95-.62L7.96 5.62l-5.58 5.58a2.04 2.04 0 0 0 0 2.88l8.36 8.36a2.04 2.04 0 0 0 2.88 0l8-8a2.04 2.04 0 0 0 0-2.88z"/></svg>
+      <span>Git Mastery Hub</span>
+    </a>
+    <div class="nav-controls">
+      <a href="0010-safe-undos-vs-history-rewrites-revert-vs-reset.html" class="btn" style="padding: 0.4rem 0.85rem; font-size: 0.82rem;">← Lesson 0010</a>
+      <a href="0012-rebase-vs-merge-clean-linear-history.html" class="btn" style="padding: 0.4rem 0.85rem; font-size: 0.82rem;">Lesson 0012 →</a>
+      <a href="../reference/11-git-stash-handbook.html" class="btn" style="padding: 0.4rem 0.85rem; font-size: 0.82rem;">📄 Reference Card</a>
+      <button id="themeToggleBtn" class="theme-toggle-btn" onclick="toggleTheme()" title="Switch Theme">🌙</button>
+    </div>
+  </nav>
+
+  <div class="container">
+    <header class="lesson-header">
+      <div class="badge-wrapper">
+        <span class="lesson-badge">Lesson 0011 • Module 6</span>
+        <span class="meta-pill">⏱️ 6 min read</span>
+        <span class="meta-pill">📦 Stash Shelf Simulator</span>
+      </div>
+      <h1>Shelving Work in Progress with git stash</h1>
+      <p>Context-switch like a pro: learn how to safely shelve uncommitted messy experiments when an urgent hotfix strikes, without cluttering your commit history with ugly "WIP" commits.</p>
+    </header>
+
+    <main>
+      <h2><span class="section-num">1</span> The Mid-Sprint Emergency</h2>
+      <p>
+        You are in the middle of writing a 200-line feature. Suddenly, your manager reports a critical bug in production. You must switch to <code>main</code> right now to deploy a hotfix!
+      </p>
+      <p>
+        Git will block you from switching branches because your uncommitted files would clash. Making a half-finished commit named <em>"asdf temp save"</em> pollutes your team's git log.
+      </p>
+      <div class="callout purple">
+        <div class="callout-title">📦 The Stash Solution</div>
+        <p>
+          <code>git stash</code> takes your dirty Working Tree and Staging Area, saves them onto a private internal stack (the stash shelf), and resets your working tree to a completely clean state matching HEAD.
+        </p>
+      </div>
+
+      <h2><span class="section-num">2</span> The Stash Lifecycle Commands</h2>
+      <div class="terminal-window">
+        <div class="terminal-body">
+          <span style="color: var(--text-muted);"># 1. Save changes to stash with a meaningful label</span><br>
+          <span class="terminal-prompt">$</span> <span class="terminal-cmd">git stash push -m "wip: navbar animation"</span><br><br>
+          <span style="color: var(--text-muted);"># 2. View all stored stashes</span><br>
+          <span class="terminal-prompt">$</span> <span class="terminal-cmd">git stash list</span><br>
+          <div class="terminal-output">stash@{0}: On feat/nav: wip: navbar animation</div><br>
+          <span style="color: var(--text-muted);"># 3. Restore your stashed changes and remove from shelf</span><br>
+          <span class="terminal-prompt">$</span> <span class="terminal-cmd">git stash pop</span>
+        </div>
+      </div>
+
+      <h2><span class="section-num">3</span> Interactive Stash Shelf Simulator</h2>
+      <div class="interactive-card">
+        <div class="interactive-card-title">Live Stash Playground</div>
+        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.25rem;">
+          <button class="btn" onclick="simStash('dirty')">1. Dirty Working Tree (Edits in app.js)</button>
+          <button class="btn" onclick="simStash('stash')">2. git stash push -m "nav-wip"</button>
+          <button class="btn" onclick="simStash('hotfix')">3. Switch & Apply Hotfix on main</button>
+          <button class="btn" onclick="simStash('pop')">4. Switch back & git stash pop</button>
+          <button class="btn" onclick="simStash('reset')">Reset</button>
+        </div>
+
+        <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 1rem;">
+          <div class="repo-pane">
+            <div class="repo-pane-header"><span>💻 Working Tree Status</span></div>
+            <div id="stashWorkingBox" style="font-family: var(--font-mono); font-size: 0.85rem; color: var(--text-secondary); min-height: 60px;">
+              Clean (matches HEAD).
+            </div>
+          </div>
+          <div class="repo-pane">
+            <div class="repo-pane-header"><span>📦 Stash Shelf (git stash list)</span></div>
+            <div id="stashShelfBox" style="font-family: var(--font-mono); font-size: 0.85rem; color: var(--accent-purple); min-height: 60px;">
+              [Empty]
+            </div>
+          </div>
+        </div>
+
+        <div id="stashNotice" style="margin-top: 0.75rem; font-family: var(--font-mono); font-size: 0.88rem; color: var(--accent-cyan);">
+          Click '1. Dirty Working Tree' to simulate unfinished feature code!
+        </div>
+      </div>
+
+      <h2><span class="section-num">4</span> Knowledge Check</h2>
+      <div class="quiz-container" id="quizLesson11_1">
+        <div class="quiz-question">What is the difference between `git stash pop` and `git stash apply`?</div>
+        <div class="quiz-option" onclick="selectOption('quizLesson11_1', 0)">A) git stash pop restores changes and removes them from the stash list; apply leaves them in the stash.</div>
+        <div class="quiz-option" onclick="selectOption('quizLesson11_1', 1)">B) git stash apply works only on remote branches.</div>
+        <div class="quiz-option" onclick="selectOption('quizLesson11_1', 2)">C) There is no difference.</div>
+        <div class="quiz-feedback" id="quizLesson11_1_feedback"></div>
+      </div>
+    </main>
+
+    <footer class="lesson-footer">
+      <div>
+        <a href="0010-safe-undos-vs-history-rewrites-revert-vs-reset.html" class="btn">← Lesson 0010</a>
+      </div>
+      <div class="footer-source">
+        Git Mastery Curriculum • Module 6 • Lesson 0011
+      </div>
+      <div>
+        <a href="0012-rebase-vs-merge-clean-linear-history.html" class="btn primary">Next: Lesson 0012 (Rebase vs Merge) →</a>
+      </div>
+    </footer>
+  </div>
+
+  <script src="../assets/components.js"></script>
+  <script>
+    initQuiz('quizLesson11_1', {
+      correctIndex: 0,
+      explanation: '<code>pop</code> applies the topmost stash and deletes it from the list. <code>apply</code> restores the files but retains the stash entry in case you need it again.'
+    });
+
+    function simStash(action) {
+      const work = document.getElementById('stashWorkingBox');
+      const shelf = document.getElementById('stashShelfBox');
+      const notice = document.getElementById('stashNotice');
+
+      if (action === 'dirty') {
+        work.innerHTML = `<span style="color: var(--accent-rose); font-weight: 700;">modified: app.js (unfinished nav experiment)</span>`;
+        notice.innerHTML = `⚠️ Dirty state! Git won't let you switch branches cleanly. Run '2. git stash push' to shelve it!`;
+      } else if (action === 'stash') {
+        work.innerHTML = `<span style="color: var(--accent-emerald);">Working tree clean! (Pristine state matching HEAD)</span>`;
+        shelf.innerHTML = `stash@{0}: On feat/nav: nav-wip`;
+        notice.innerHTML = `📦 Shelved! Working tree is completely clean. You are free to switch branches and do hotfixes!`;
+        triggerConfetti();
+      } else if (action === 'hotfix') {
+        work.innerHTML = `<span style="color: var(--accent-cyan);">Committed & deployed hotfix: fix(prod): payment null pointer.</span>`;
+        notice.innerHTML = `🔥 Hotfix finished on main! Now click '4. git stash pop' to resume your feature work.`;
+      } else if (action === 'pop') {
+        work.innerHTML = `<span style="color: var(--accent-emerald); font-weight: 700;">Restored: app.js (your navbar edits are back exactly as you left them!)</span>`;
+        shelf.innerHTML = `[Empty]`;
+        notice.innerHTML = `🎉 Stash popped! Your working tree has all your uncommitted code back, and the shelf is cleared.`;
+        triggerConfetti();
+      } else if (action === 'reset') {
+        location.reload();
+      }
+    }
+  </script>
+</body>
+</html>

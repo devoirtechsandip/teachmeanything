@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lesson 0005: Fast-Forward vs Three-Way Merges</title>
+  <link rel="stylesheet" href="../assets/style.css">
+  <style>
+    .merge-graph-box {
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border-card);
+      border-radius: var(--radius-sm);
+      padding: 2rem;
+      min-height: 180px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1.5rem;
+      overflow-x: auto;
+    }
+    .commit-circle {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-mono);
+      font-weight: 700;
+      font-size: 0.8rem;
+      border: 2px solid var(--border-card);
+      background: var(--bg-surface);
+      position: relative;
+    }
+    .commit-main { border-color: var(--accent-cyan); color: var(--accent-cyan); }
+    .commit-feature { border-color: var(--accent-purple); color: var(--accent-purple); }
+    .commit-merge { border-color: var(--accent-emerald); color: var(--accent-emerald); background: rgba(16, 185, 129, 0.1); }
+  </style>
+</head>
+<body>
+  <div id="topProgressBar" class="top-progress-bar"></div>
+
+  <nav class="sticky-nav">
+    <a href="0004-branches-as-lightweight-pointers.html" class="nav-brand">
+      <svg class="nav-logo-icon" viewBox="0 0 24 24"><path d="M21.62 10.74l-8.36-8.36a2.04 2.04 0 0 0-2.88 0l-2 2a.37.37 0 0 0 0 .52l2.42 2.42a1.8 1.8 0 0 1 .53-.08 1.87 1.87 0 0 1 1.87 1.87 1.84 1.84 0 0 1-.58 1.34l2.49 2.5a1.86 1.86 0 0 1 1.32-.57 1.87 1.87 0 1 1-1.87 1.87 1.83 1.83 0 0 1 .49-1.24l-2.37-2.37v5.27a1.88 1.88 0 1 1-1.25 0V8.71a1.85 1.85 0 0 1-.95-.62L7.96 5.62l-5.58 5.58a2.04 2.04 0 0 0 0 2.88l8.36 8.36a2.04 2.04 0 0 0 2.88 0l8-8a2.04 2.04 0 0 0 0-2.88z"/></svg>
+      <span>Git Mastery Hub</span>
+    </a>
+    <div class="nav-controls">
+      <a href="0004-branches-as-lightweight-pointers.html" class="btn" style="padding: 0.4rem 0.85rem; font-size: 0.82rem;">← Lesson 0004</a>
+      <a href="0006-battle-tested-merge-conflicts.html" class="btn" style="padding: 0.4rem 0.85rem; font-size: 0.82rem;">Lesson 0006 →</a>
+      <a href="../reference/05-merging-fast-forward-and-three-way.html" class="btn" style="padding: 0.4rem 0.85rem; font-size: 0.82rem;">📄 Reference Card</a>
+      <button id="themeToggleBtn" class="theme-toggle-btn" onclick="toggleTheme()" title="Switch Theme">🌙</button>
+    </div>
+  </nav>
+
+  <div class="container">
+    <header class="lesson-header">
+      <div class="badge-wrapper">
+        <span class="lesson-badge">Lesson 0005 • Module 3</span>
+        <span class="meta-pill">⏱️ 6 min read</span>
+        <span class="meta-pill">🔀 Merge Simulator</span>
+      </div>
+      <h1>Fast-Forward vs Three-Way Merges</h1>
+      <p>Understand how Git integrates divergent histories: why some merges create new commits while others simply slide a pointer forward.</p>
+    </header>
+
+    <main>
+      <h2><span class="section-num">1</span> Scenario A: The Fast-Forward Merge</h2>
+      <p>
+        Imagine you created a branch <code>feat/cart</code> from commit <code>C1</code> on <code>main</code>. You made two commits (<code>C2</code> and <code>C3</code>). Meanwhile, <strong>nobody made any commits on <code>main</code></strong>.
+      </p>
+      <div class="callout emerald">
+        <div class="callout-title">⚡ Fast-Forward Mechanism</div>
+        <p>
+          Because there are no diverging commits on <code>main</code>, Git doesn't need to combine anything. When you run <code>git switch main && git merge feat/cart</code>, Git simply moves the <code>main</code> pointer forward to point to <code>C3</code>. <strong>No extra merge commit is created!</strong>
+        </p>
+      </div>
+
+      <h2><span class="section-num">2</span> Scenario B: The Three-Way (Recursive/ORT) Merge</h2>
+      <p>
+        Now imagine that while you were working on <code>feat/cart</code>, your teammate merged commit <code>C4</code> into <code>main</code>.
+      </p>
+      <p>
+        Now both branches have moved in different directions starting from their common ancestor (<code>C1</code>, the <strong>merge base</strong>). Git cannot simply slide a pointer forward. Instead, Git inspects:
+      </p>
+      <ol style="margin-left: 1.5rem; color: var(--text-secondary); line-height: 1.8;">
+        <li><strong>Commit C1 (Merge Base)</strong>: The last shared snapshot.</li>
+        <li><strong>Commit C3 (Feature Tip)</strong>: Your additions.</li>
+        <li><strong>Commit C4 (Main Tip)</strong>: Teammate's additions.</li>
+      </ol>
+      <p>
+        Git synthesizes all changes into a brand-new commit called a <strong>Merge Commit (M1)</strong>, which uniquely possesses <strong>two parents</strong>!
+      </p>
+
+      <h2><span class="section-num">3</span> Interactive Merge Visualizer</h2>
+      <div class="interactive-card">
+        <div class="interactive-card-title">Interactive Merge Engine</div>
+        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.5rem;">
+          <button class="btn" onclick="simMerge('ff')">Simulate Fast-Forward Merge</button>
+          <button class="btn" onclick="simMerge('threeway')">Simulate 3-Way Merge (Divergent)</button>
+          <button class="btn" onclick="simMerge('reset')">Reset</button>
+        </div>
+
+        <div id="mergeCanvas" class="merge-graph-box">
+          <div class="commit-circle commit-main">C1<div style="position: absolute; bottom: -24px; font-size: 0.7rem; color: var(--accent-cyan);">Base</div></div>
+          <span style="color: var(--text-muted);">→</span>
+          <div class="commit-circle commit-feature">C2</div>
+          <span style="color: var(--text-muted);">→</span>
+          <div class="commit-circle commit-feature">C3<div style="position: absolute; bottom: -24px; font-size: 0.7rem; color: var(--accent-purple);">feat/cart</div></div>
+        </div>
+
+        <div id="mergeExplanation" style="margin-top: 1rem; font-family: var(--font-mono); font-size: 0.88rem; color: var(--accent-cyan);">
+          Initial State: feat/cart is ahead of main by 2 commits. Main is at C1.
+        </div>
+      </div>
+
+      <h2><span class="section-num">4</span> Knowledge Check</h2>
+      <div class="quiz-container" id="quizLesson5_1">
+        <div class="quiz-question">When does Git perform a Fast-Forward merge?</div>
+        <div class="quiz-option" onclick="selectOption('quizLesson5_1', 0)">A) When the target branch has no new commits since the feature branch was created.</div>
+        <div class="quiz-option" onclick="selectOption('quizLesson5_1', 1)">B) When you pass the --force flag to git merge.</div>
+        <div class="quiz-option" onclick="selectOption('quizLesson5_1', 2)">C) Only when merging single-line changes.</div>
+        <div class="quiz-feedback" id="quizLesson5_1_feedback"></div>
+      </div>
+    </main>
+
+    <footer class="lesson-footer">
+      <div>
+        <a href="0004-branches-as-lightweight-pointers.html" class="btn">← Lesson 0004</a>
+      </div>
+      <div class="footer-source">
+        Git Mastery Curriculum • Module 3 • Lesson 0005
+      </div>
+      <div>
+        <a href="0006-battle-tested-merge-conflicts.html" class="btn primary">Next: Lesson 0006 (Conflicts) →</a>
+      </div>
+    </footer>
+  </div>
+
+  <script src="../assets/components.js"></script>
+  <script>
+    initQuiz('quizLesson5_1', {
+      correctIndex: 0,
+      explanation: 'If the target branch has not diverged from the feature branch, Git can simply slide the branch pointer forward (Fast-Forward).'
+    });
+
+    function simMerge(type) {
+      const canvas = document.getElementById('mergeCanvas');
+      const text = document.getElementById('mergeExplanation');
+      if (type === 'ff') {
+        canvas.innerHTML = `
+          <div class="commit-circle commit-main">C1</div>
+          <span style="color: var(--text-muted);">→</span>
+          <div class="commit-circle commit-main">C2</div>
+          <span style="color: var(--text-muted);">→</span>
+          <div class="commit-circle commit-main">C3<div style="position: absolute; bottom: -24px; font-size: 0.7rem; color: var(--accent-cyan); font-weight: 700;">main (FF)</div></div>
+        `;
+        text.innerHTML = `⚡ Fast-Forward complete! Git merely shifted <code>main</code> forward to C3. Zero extra commits.`;
+        triggerConfetti();
+      } else if (type === 'threeway') {
+        canvas.innerHTML = `
+          <div style="display: flex; flex-direction: column; gap: 1rem; align-items: center;">
+            <div style="display: flex; align-items: center; gap: 1rem;">
+              <div class="commit-circle commit-main">C1 (Base)</div>
+              <span style="color: var(--text-muted);">→</span>
+              <div class="commit-circle commit-main">C4 (main)</div>
+              <span style="color: var(--text-muted);">↘</span>
+              <div class="commit-circle commit-merge">M1<div style="position: absolute; bottom: -24px; font-size: 0.7rem; color: var(--accent-emerald); font-weight:700;">Merge Commit</div></div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 1rem; margin-left: -50px;">
+              <span style="color: var(--text-muted);">↳</span>
+              <div class="commit-circle commit-feature">C2</div>
+              <span style="color: var(--text-muted);">→</span>
+              <div class="commit-circle commit-feature">C3 (feature)</div>
+              <span style="color: var(--text-muted);">↗</span>
+            </div>
+          </div>
+        `;
+        text.innerHTML = `🔀 Three-Way Merge! Git evaluated C1, C4, and C3 to assemble new Merge Commit <code>M1</code> (2 parents).`;
+        triggerConfetti();
+      } else if (type === 'reset') {
+        location.reload();
+      }
+    }
+  </script>
+</body>
+</html>

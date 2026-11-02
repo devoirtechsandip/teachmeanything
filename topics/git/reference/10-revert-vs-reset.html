@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Git Reference #10: Revert vs Reset Playbook</title>
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+  <div id="topProgressBar" class="top-progress-bar"></div>
+
+  <nav class="sticky-nav">
+    <a href="../lessons/0010-safe-undos-vs-history-rewrites-revert-vs-reset.html" class="nav-brand">
+      <svg class="nav-logo-icon" viewBox="0 0 24 24"><path d="M21.62 10.74l-8.36-8.36a2.04 2.04 0 0 0-2.88 0l-2 2a.37.37 0 0 0 0 .52l2.42 2.42a1.8 1.8 0 0 1 .53-.08 1.87 1.87 0 0 1 1.87 1.87 1.84 1.84 0 0 1-.58 1.34l2.49 2.5a1.86 1.86 0 0 1 1.32-.57 1.87 1.87 0 1 1-1.87 1.87 1.83 1.83 0 0 1 .49-1.24l-2.37-2.37v5.27a1.88 1.88 0 1 1-1.25 0V8.71a1.85 1.85 0 0 1-.95-.62L7.96 5.62l-5.58 5.58a2.04 2.04 0 0 0 0 2.88l8.36 8.36a2.04 2.04 0 0 0 2.88 0l8-8a2.04 2.04 0 0 0 0-2.88z"/></svg>
+      <span>Git Mastery Hub</span>
+    </a>
+    <div class="nav-controls">
+      <a href="../lessons/0010-safe-undos-vs-history-rewrites-revert-vs-reset.html" class="btn" style="padding: 0.4rem 0.85rem; font-size: 0.82rem;">← Back to Lesson 0010</a>
+      <button id="themeToggleBtn" class="theme-toggle-btn" onclick="toggleTheme()" title="Switch Theme">🌙</button>
+    </div>
+  </nav>
+
+  <div class="container">
+    <header class="lesson-header">
+      <div class="badge-wrapper">
+        <span class="lesson-badge">Quick Reference Card #10</span>
+        <span class="meta-pill">⚡ Cheat Sheet</span>
+      </div>
+      <h1>Revert vs Reset Quick Reference</h1>
+      <p>Cheat sheet for undoing committed mistakes safely across public and private branches.</p>
+    </header>
+
+    <main>
+      <h2>Undo Strategy Decision Matrix</h2>
+      <table style="width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.95rem;">
+        <thead>
+          <tr style="background: var(--bg-surface-elevated); border-bottom: 2px solid var(--border-card);">
+            <th style="padding: 0.75rem; text-align: left;">Command</th>
+            <th style="padding: 0.75rem; text-align: left;">History Mod</th>
+            <th style="padding: 0.75rem; text-align: left;">Working Tree</th>
+            <th style="padding: 0.75rem; text-align: left;">Target Environment</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom: 1px solid var(--border-card);">
+            <td style="padding: 0.75rem; font-family: var(--font-mono); color: var(--accent-emerald);">git revert &lt;SHA&gt;</td>
+            <td style="padding: 0.75rem;">Appends new commit</td>
+            <td style="padding: 0.75rem;">Clean</td>
+            <td style="padding: 0.75rem;"><strong>Public/Shared Branches</strong></td>
+          </tr>
+          <tr style="border-bottom: 1px solid var(--border-card);">
+            <td style="padding: 0.75rem; font-family: var(--font-mono); color: var(--accent-cyan);">git reset --soft HEAD~1</td>
+            <td style="padding: 0.75rem;">Rewinds pointer</td>
+            <td style="padding: 0.75rem;">Preserved (Staged)</td>
+            <td style="padding: 0.75rem;">Local Unpushed Only</td>
+          </tr>
+          <tr style="border-bottom: 1px solid var(--border-card);">
+            <td style="padding: 0.75rem; font-family: var(--font-mono); color: var(--accent-amber);">git reset --mixed HEAD~1</td>
+            <td style="padding: 0.75rem;">Rewinds pointer</td>
+            <td style="padding: 0.75rem;">Preserved (Unstaged)</td>
+            <td style="padding: 0.75rem;">Local Unpushed Only</td>
+          </tr>
+          <tr>
+            <td style="padding: 0.75rem; font-family: var(--font-mono); color: var(--accent-rose);">git reset --hard HEAD~1</td>
+            <td style="padding: 0.75rem;">Rewinds pointer</td>
+            <td style="padding: 0.75rem;">Obliterated</td>
+            <td style="padding: 0.75rem;">Local Unpushed Only</td>
+          </tr>
+        </tbody>
+      </table>
+    </main>
+  </div>
+  <script src="../assets/components.js"></script>
+</body>
+</html>

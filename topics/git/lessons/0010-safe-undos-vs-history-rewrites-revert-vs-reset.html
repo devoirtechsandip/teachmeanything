@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lesson 0010: Safe Undos vs History Rewrites: revert vs reset</title>
+  <link rel="stylesheet" href="../assets/style.css">
+  <style>
+    .reset-matrix-card {
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border-card);
+      border-radius: var(--radius-sm);
+      padding: 1.25rem;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+  <div id="topProgressBar" class="top-progress-bar"></div>
+
+  <nav class="sticky-nav">
+    <a href="0009-discarding-uncommitted-work-git-restore.html" class="nav-brand">
+      <svg class="nav-logo-icon" viewBox="0 0 24 24"><path d="M21.62 10.74l-8.36-8.36a2.04 2.04 0 0 0-2.88 0l-2 2a.37.37 0 0 0 0 .52l2.42 2.42a1.8 1.8 0 0 1 .53-.08 1.87 1.87 0 0 1 1.87 1.87 1.84 1.84 0 0 1-.58 1.34l2.49 2.5a1.86 1.86 0 0 1 1.32-.57 1.87 1.87 0 1 1-1.87 1.87 1.83 1.83 0 0 1 .49-1.24l-2.37-2.37v5.27a1.88 1.88 0 1 1-1.25 0V8.71a1.85 1.85 0 0 1-.95-.62L7.96 5.62l-5.58 5.58a2.04 2.04 0 0 0 0 2.88l8.36 8.36a2.04 2.04 0 0 0 2.88 0l8-8a2.04 2.04 0 0 0 0-2.88z"/></svg>
+      <span>Git Mastery Hub</span>
+    </a>
+    <div class="nav-controls">
+      <a href="0009-discarding-uncommitted-work-git-restore.html" class="btn" style="padding: 0.4rem 0.85rem; font-size: 0.82rem;">← Lesson 0009</a>
+      <a href="0011-shelving-work-in-progress-git-stash.html" class="btn" style="padding: 0.4rem 0.85rem; font-size: 0.82rem;">Lesson 0011 →</a>
+      <a href="../reference/10-revert-vs-reset.html" class="btn" style="padding: 0.4rem 0.85rem; font-size: 0.82rem;">📄 Reference Card</a>
+      <button id="themeToggleBtn" class="theme-toggle-btn" onclick="toggleTheme()" title="Switch Theme">🌙</button>
+    </div>
+  </nav>
+
+  <div class="container">
+    <header class="lesson-header">
+      <div class="badge-wrapper">
+        <span class="lesson-badge">Lesson 0010 • Module 5</span>
+        <span class="meta-pill">⏱️ 8 min read</span>
+        <span class="meta-pill">⏪ Revert & Reset Simulator</span>
+      </div>
+      <h1>Safe Undos vs History Rewrites: revert vs reset</h1>
+      <p>Master the Git time machine: know with surgical certainty when to use non-destructive <code>git revert</code> on shared branches and how to operate <code>git reset</code> (--soft, --mixed, --hard) safely on local branches.</p>
+    </header>
+
+    <main>
+      <h2><span class="section-num">1</span> The Golden Rule of Undoing</h2>
+      <div class="callout rose">
+        <div class="callout-title">🚨 Public History vs Local History</div>
+        <p>
+          <strong>If commits have been pushed to GitHub/team branches:</strong> NEVER use <code>git reset</code>. Use <code>git revert</code>. It appends a new commit that cleanly inverts the bug without breaking your team's history.<br>
+          <strong>If commits are strictly local on your laptop:</strong> You can safely use <code>git reset</code> to reshape your commits before pushing.
+        </p>
+      </div>
+
+      <h2><span class="section-num">2</span> git revert: The Safe Forward-Moving Undo</h2>
+      <p>
+        Instead of traveling back in time and erasing history, <code>git revert &lt;commit-hash&gt;</code> moves <strong>forward</strong>:
+      </p>
+      <div class="terminal-window">
+        <div class="terminal-body">
+          <div>* <span style="color: var(--accent-emerald);">e8b912a</span> (HEAD -> main) Revert "feat: broken-payment-gateway"</div>
+          <div>* <span style="color: var(--accent-rose);">3f12019</span> feat: broken-payment-gateway (buggy commit!)</div>
+          <div>* <span style="color: var(--accent-cyan);">1a44c9b</span> feat: user profile page</div>
+        </div>
+      </div>
+      <p>
+        Notice that commit <code>3f12019</code> still exists in the history log, but commit <code>e8b912a</code> undoes all of its changes. Teammates can pull seamlessly without merge conflicts!
+      </p>
+
+      <h2><span class="section-num">3</span> The Three Flavors of git reset</h2>
+      <div class="grid" style="grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin: 1.5rem 0;">
+        <div class="reset-matrix-card">
+          <h3 style="color: var(--accent-emerald);">--soft</h3>
+          <p>Moves HEAD back 1 commit. Leaves all files <strong>staged in the index</strong>.</p>
+          <div style="font-size: 0.8rem; color: var(--accent-cyan); margin-top: 0.5rem;">Use case: "I want to re-commit with a better message or combine with new files."</div>
+        </div>
+        <div class="reset-matrix-card">
+          <h3 style="color: var(--accent-amber);">--mixed (default)</h3>
+          <p>Moves HEAD back 1 commit. Leaves files in <strong>working tree (unstaged)</strong>.</p>
+          <div style="font-size: 0.8rem; color: var(--accent-cyan); margin-top: 0.5rem;">Use case: "I want to re-organize which files get staged into which commit."</div>
+        </div>
+        <div class="reset-matrix-card">
+          <h3 style="color: var(--accent-rose);">--hard</h3>
+          <p>Moves HEAD back and <strong>obliterates all working edits</strong> to match target commit.</p>
+          <div style="font-size: 0.8rem; color: var(--accent-rose); margin-top: 0.5rem;">⚠️ DANGEROUS: Destroys uncommitted code completely!</div>
+        </div>
+      </div>
+
+      <h2><span class="section-num">4</span> Interactive Reset & Revert Simulator</h2>
+      <div class="interactive-card">
+        <div class="interactive-card-title">Interactive Time Machine Playground</div>
+        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.25rem;">
+          <button class="btn" onclick="simUndo('revert')">Safe: git revert HEAD</button>
+          <button class="btn" onclick="simUndo('soft')">Local: git reset --soft HEAD~1</button>
+          <button class="btn" onclick="simUndo('mixed')">Local: git reset --mixed HEAD~1</button>
+          <button class="btn" onclick="simUndo('hard')" style="color: var(--accent-rose);">Local: git reset --hard HEAD~1</button>
+          <button class="btn" onclick="simUndo('reset')">Reset</button>
+        </div>
+
+        <div class="terminal-window">
+          <div class="terminal-header">
+            <div class="terminal-dots"><span class="terminal-dot red"></span><span class="terminal-dot yellow"></span><span class="terminal-dot green"></span></div>
+            <div>git status & log inspector</div>
+          </div>
+          <div class="terminal-body" id="undoSimBody">
+            <div>Commit History:</div>
+            <div>* <span style="color: var(--accent-rose);">[C2: Buggy Feature]</span> &lt;-- HEAD -> main</div>
+            <div>* <span style="color: var(--accent-cyan);">[C1: Clean Base]</span></div>
+            <div style="color: var(--text-muted); margin-top: 0.5rem;">Choose an undo operation above!</div>
+          </div>
+        </div>
+
+        <div id="undoNotice" style="margin-top: 0.75rem; font-family: var(--font-mono); font-size: 0.88rem; color: var(--accent-cyan);">
+          Click an undo strategy above to see the state changes!
+        </div>
+      </div>
+
+      <h2><span class="section-num">5</span> Knowledge Check</h2>
+      <div class="quiz-container" id="quizLesson10_1">
+        <div class="quiz-question">Which undo command should you use for a bug that has already been pushed to a shared team branch on GitHub?</div>
+        <div class="quiz-option" onclick="selectOption('quizLesson10_1', 0)">A) git reset --hard HEAD~1</div>
+        <div class="quiz-option" onclick="selectOption('quizLesson10_1', 1)">B) git revert &lt;commit-hash&gt;</div>
+        <div class="quiz-option" onclick="selectOption('quizLesson10_1', 2)">C) git checkout -f</div>
+        <div class="quiz-feedback" id="quizLesson10_1_feedback"></div>
+      </div>
+    </main>
+
+    <footer class="lesson-footer">
+      <div>
+        <a href="0009-discarding-uncommitted-work-git-restore.html" class="btn">← Lesson 0009</a>
+      </div>
+      <div class="footer-source">
+        Git Mastery Curriculum • Module 5 • Lesson 0010
+      </div>
+      <div>
+        <a href="0011-shelving-work-in-progress-git-stash.html" class="btn primary">Next: Lesson 0011 (Stashing) →</a>
+      </div>
+    </footer>
+  </div>
+
+  <script src="../assets/components.js"></script>
+  <script>
+    initQuiz('quizLesson10_1', {
+      correctIndex: 1,
+      explanation: '<code>git revert</code> creates a new commit that safely inverts changes, making it ideal and safe for shared public branches.'
+    });
+
+    function simUndo(action) {
+      const body = document.getElementById('undoSimBody');
+      const notice = document.getElementById('undoNotice');
+
+      if (action === 'revert') {
+        body.innerHTML = `
+          <div>* <span style="color: var(--accent-emerald);">[C3: Revert "Buggy Feature"]</span> &lt;-- HEAD -> main</div>
+          <div>* <span style="color: var(--accent-rose);">[C2: Buggy Feature]</span> (historical record preserved)</div>
+          <div>* <span style="color: var(--accent-cyan);">[C1: Clean Base]</span></div>
+        `;
+        notice.innerHTML = `🛡️ Safe public undo! New commit C3 created that reverses C2. Zero history rewritten. Safe to push!`;
+        triggerConfetti();
+      } else if (action === 'soft') {
+        body.innerHTML = `
+          <div>* <span style="color: var(--accent-cyan);">[C1: Clean Base]</span> &lt;-- HEAD -> main</div>
+          <div style="color: var(--accent-emerald); margin-top: 0.5rem;">Staging Area: Changes from C2 are currently STAGED and ready to re-commit!</div>
+        `;
+        notice.innerHTML = `✨ <code>--soft</code> reset: HEAD moved back to C1, but code is preserved staged in .git/index.`;
+      } else if (action === 'mixed') {
+        body.innerHTML = `
+          <div>* <span style="color: var(--accent-cyan);">[C1: Clean Base]</span> &lt;-- HEAD -> main</div>
+          <div style="color: var(--accent-amber); margin-top: 0.5rem;">Working Tree: Changes from C2 are UNSTAGED on your disk.</div>
+        `;
+        notice.innerHTML = `⚡ <code>--mixed</code> reset: HEAD moved back to C1, staging area cleared, code remains in working directory.`;
+      } else if (action === 'hard') {
+        body.innerHTML = `
+          <div>* <span style="color: var(--accent-cyan);">[C1: Clean Base]</span> &lt;-- HEAD -> main</div>
+          <div style="color: var(--accent-rose); margin-top: 0.5rem;">Working Tree: All changes from C2 wiped clean. File contents match C1 perfectly.</div>
+        `;
+        notice.innerHTML = `⚠️ <code>--hard</code> reset: C2 is unlinked from the branch and working tree edits were discarded.`;
+      } else if (action === 'reset') {
+        location.reload();
+      }
+    }
+  </script>
+</body>
+</html>

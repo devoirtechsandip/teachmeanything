@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lesson 0008: Team Synchronization: fetch, pull & push</title>
+  <link rel="stylesheet" href="../assets/style.css">
+  <style>
+    .sync-pipeline {
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border-card);
+      border-radius: var(--radius-sm);
+      padding: 1.5rem;
+      margin: 1.5rem 0;
+    }
+  </style>
+</head>
+<body>
+  <div id="topProgressBar" class="top-progress-bar"></div>
+
+  <nav class="sticky-nav">
+    <a href="0007-remotes-demystified-origin-and-clone.html" class="nav-brand">
+      <svg class="nav-logo-icon" viewBox="0 0 24 24"><path d="M21.62 10.74l-8.36-8.36a2.04 2.04 0 0 0-2.88 0l-2 2a.37.37 0 0 0 0 .52l2.42 2.42a1.8 1.8 0 0 1 .53-.08 1.87 1.87 0 0 1 1.87 1.87 1.84 1.84 0 0 1-.58 1.34l2.49 2.5a1.86 1.86 0 0 1 1.32-.57 1.87 1.87 0 1 1-1.87 1.87 1.83 1.83 0 0 1 .49-1.24l-2.37-2.37v5.27a1.88 1.88 0 1 1-1.25 0V8.71a1.85 1.85 0 0 1-.95-.62L7.96 5.62l-5.58 5.58a2.04 2.04 0 0 0 0 2.88l8.36 8.36a2.04 2.04 0 0 0 2.88 0l8-8a2.04 2.04 0 0 0 0-2.88z"/></svg>
+      <span>Git Mastery Hub</span>
+    </a>
+    <div class="nav-controls">
+      <a href="0007-remotes-demystified-origin-and-clone.html" class="btn" style="padding: 0.4rem 0.85rem; font-size: 0.82rem;">← Lesson 0007</a>
+      <a href="0009-discarding-uncommitted-work-git-restore.html" class="btn" style="padding: 0.4rem 0.85rem; font-size: 0.82rem;">Lesson 0009 →</a>
+      <a href="../reference/08-syncing-fetch-pull-push.html" class="btn" style="padding: 0.4rem 0.85rem; font-size: 0.82rem;">📄 Reference Card</a>
+      <button id="themeToggleBtn" class="theme-toggle-btn" onclick="toggleTheme()" title="Switch Theme">🌙</button>
+    </div>
+  </nav>
+
+  <div class="container">
+    <header class="lesson-header">
+      <div class="badge-wrapper">
+        <span class="lesson-badge">Lesson 0008 • Module 4</span>
+        <span class="meta-pill">⏱️ 7 min read</span>
+        <span class="meta-pill">🔄 Network Sync Visualizer</span>
+      </div>
+      <h1>Team Synchronization: fetch, pull & push</h1>
+      <p>Master the distributed heartbeat: learn why <code>git pull</code> is really two commands under the hood, how <code>git fetch</code> lets you inspect changes safely, and how to resolve rejected pushes.</p>
+    </header>
+
+    <main>
+      <h2><span class="section-num">1</span> The Fundamental Formula: pull = fetch + merge</h2>
+      <p>
+        The single most important equation in Git remote networking is:
+      </p>
+      <div class="callout cyan">
+        <div class="callout-title">⚡ The Core Sync Formula</div>
+        <div style="font-size: 1.2rem; font-family: var(--font-mono); font-weight: 700; text-align: center; margin: 0.75rem 0;">
+          git pull &nbsp;=&nbsp; git fetch &nbsp;+&nbsp; git merge
+        </div>
+      </div>
+
+      <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 1.5rem; margin: 1.5rem 0;">
+        <div class="interactive-card">
+          <h3 style="color: var(--accent-cyan);">1. <code>git fetch</code> (Safe Look)</h3>
+          <p style="font-size: 0.9rem; color: var(--text-secondary);">
+            Downloads all new commits, objects, and branches from the remote, and updates your <code>origin/main</code> bookmark. <strong>It touches zero working files on your disk.</strong> You can run fetch without fear of broken code or conflicts.
+          </p>
+        </div>
+        <div class="interactive-card">
+          <h3 style="color: var(--accent-emerald);">2. <code>git pull</code> (Fetch + Combine)</h3>
+          <p style="font-size: 0.9rem; color: var(--text-secondary);">
+            Runs <code>git fetch</code> to download commits, and immediately runs <code>git merge</code> into your active local branch. If changes clash, you may enter a merge conflict instantly.
+          </p>
+        </div>
+      </div>
+
+      <h2><span class="section-num">2</span> The "Rejected Push" Panic Explained</h2>
+      <p>
+        You run <code>git push origin main</code> and see this dreaded terminal wall:
+      </p>
+      <div class="terminal-window">
+        <div class="terminal-body" style="color: var(--accent-rose);">
+          ! [rejected]        main -> main (fetch first)<br>
+          error: failed to push some refs to 'https://github.com/org/repo.git'<br>
+          hint: Updates were rejected because the remote contains work that you do<br>
+          hint: not have locally. This is usually caused by another repository pushing...
+        </div>
+      </div>
+      <p>
+        <strong>What this means:</strong> A teammate pushed commits before you. Git protects you: it will never allow you to silently overwrite their work! You must pull/fetch their changes first, integrate them, and then push.
+      </p>
+
+      <h2><span class="section-num">3</span> Interactive Sync Engine Simulator</h2>
+      <div class="interactive-card">
+        <div class="interactive-card-title">Network Synchronization Playground</div>
+        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem;">
+          <button class="btn" onclick="simSync('fetch')">1. git fetch origin</button>
+          <button class="btn" onclick="simSync('merge')">2. git merge origin/main</button>
+          <button class="btn" onclick="simSync('pull')">Or: git pull origin main (Both in 1)</button>
+          <button class="btn" onclick="simSync('reset')">Reset</button>
+        </div>
+
+        <div class="sync-pipeline" id="syncStatusBox">
+          <div style="font-family: var(--font-mono); font-size: 0.88rem;">
+            <div>Remote <code>origin</code> has new commit <strong>[C3: fix-auth]</strong> pushed by your teammate.</div>
+            <div style="color: var(--accent-amber); margin-top: 0.5rem;">Local main is currently sitting at [C2]. You have not yet fetched.</div>
+          </div>
+        </div>
+
+        <div id="syncFeedbackNotice" style="margin-top: 0.75rem; font-family: var(--font-mono); font-size: 0.88rem; color: var(--accent-cyan);">
+          Click '1. git fetch origin' to safely download C3 without modifying your files!
+        </div>
+      </div>
+
+      <h2><span class="section-num">4</span> Knowledge Check</h2>
+      <div class="quiz-container" id="quizLesson8_1">
+        <div class="quiz-question">Does `git fetch` ever overwrite or modify files in your working directory?</div>
+        <div class="quiz-option" onclick="selectOption('quizLesson8_1', 0)">A) Yes, it always updates all files immediately.</div>
+        <div class="quiz-option" onclick="selectOption('quizLesson8_1', 1)">B) No. It only downloads objects and updates remote tracking references like origin/main.</div>
+        <div class="quiz-option" onclick="selectOption('quizLesson8_1', 2)">C) Only if you run it as root.</div>
+        <div class="quiz-feedback" id="quizLesson8_1_feedback"></div>
+      </div>
+    </main>
+
+    <footer class="lesson-footer">
+      <div>
+        <a href="0007-remotes-demystified-origin-and-clone.html" class="btn">← Lesson 0007</a>
+      </div>
+      <div class="footer-source">
+        Git Mastery Curriculum • Module 4 • Lesson 0008
+      </div>
+      <div>
+        <a href="0009-discarding-uncommitted-work-git-restore.html" class="btn primary">Next: Lesson 0009 (Time Machine) →</a>
+      </div>
+    </footer>
+  </div>
+
+  <script src="../assets/components.js"></script>
+  <script>
+    initQuiz('quizLesson8_1', {
+      correctIndex: 1,
+      explanation: '<code>git fetch</code> is completely safe: it retrieves data from the remote server into your .git database without touching your current working files.'
+    });
+
+    function simSync(step) {
+      const box = document.getElementById('syncStatusBox');
+      const notice = document.getElementById('syncFeedbackNotice');
+
+      if (step === 'fetch') {
+        box.innerHTML = `
+          <div style="font-family: var(--font-mono); font-size: 0.88rem;">
+            <div>📥 [Downloaded] Commit C3 pulled into local .git object store!</div>
+            <div style="color: var(--accent-purple); font-weight: 700; margin-top: 0.5rem;">origin/main -> C3</div>
+            <div style="color: var(--accent-cyan);">HEAD -> main -> C2 (Your working files unchanged!)</div>
+          </div>
+        `;
+        notice.innerHTML = `✅ <code>git fetch</code> finished. Now you can run <code>git log HEAD..origin/main</code> to inspect what changed before merging!`;
+      } else if (step === 'merge') {
+        box.innerHTML = `
+          <div style="font-family: var(--font-mono); font-size: 0.88rem;">
+            <div style="color: var(--accent-emerald); font-weight: 700;">🎉 Fast-forwarded local main to C3!</div>
+            <div>HEAD -> main -> C3</div>
+            <div>origin/main -> C3</div>
+          </div>
+        `;
+        notice.innerHTML = `⚡ Merged! Your local branch is now completely synchronized with the remote origin.`;
+        triggerConfetti();
+      } else if (step === 'pull') {
+        box.innerHTML = `
+          <div style="font-family: var(--font-mono); font-size: 0.88rem;">
+            <div style="color: var(--accent-emerald); font-weight: 700;">🚀 Executed git fetch + git merge in one sweep!</div>
+            <div>HEAD -> main -> C3</div>
+            <div>origin/main -> C3</div>
+          </div>
+        `;
+        notice.innerHTML = `🎉 <code>git pull</code> completed: fetched remote commits and integrated them into your working files.`;
+        triggerConfetti();
+      } else if (step === 'reset') {
+        location.reload();
+      }
+    }
+  </script>
+</body>
+</html>

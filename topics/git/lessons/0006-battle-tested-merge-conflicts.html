@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lesson 0006: Battle-Tested Merge Conflicts</title>
+  <link rel="stylesheet" href="../assets/style.css">
+  <style>
+    .conflict-editor {
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border-card);
+      border-radius: var(--radius-sm);
+      padding: 1.25rem;
+      font-family: var(--font-mono);
+      font-size: 0.9rem;
+      line-height: 1.6;
+      margin: 1.5rem 0;
+    }
+    .marker-head { background: rgba(56, 189, 248, 0.15); color: var(--accent-cyan); display: block; padding: 0.2rem 0.5rem; font-weight: 700; border-left: 4px solid var(--accent-cyan); }
+    .marker-mid { background: rgba(245, 158, 11, 0.15); color: var(--accent-amber); display: block; padding: 0.2rem 0.5rem; font-weight: 700; border-left: 4px solid var(--accent-amber); }
+    .marker-end { background: rgba(168, 85, 247, 0.15); color: var(--accent-purple); display: block; padding: 0.2rem 0.5rem; font-weight: 700; border-left: 4px solid var(--accent-purple); }
+    .conflict-ours { background: rgba(56, 189, 248, 0.08); padding: 0.2rem 0.5rem; display: block; }
+    .conflict-theirs { background: rgba(168, 85, 247, 0.08); padding: 0.2rem 0.5rem; display: block; }
+  </style>
+</head>
+<body>
+  <div id="topProgressBar" class="top-progress-bar"></div>
+
+  <nav class="sticky-nav">
+    <a href="0005-fast-forward-vs-three-way-merges.html" class="nav-brand">
+      <svg class="nav-logo-icon" viewBox="0 0 24 24"><path d="M21.62 10.74l-8.36-8.36a2.04 2.04 0 0 0-2.88 0l-2 2a.37.37 0 0 0 0 .52l2.42 2.42a1.8 1.8 0 0 1 .53-.08 1.87 1.87 0 0 1 1.87 1.87 1.84 1.84 0 0 1-.58 1.34l2.49 2.5a1.86 1.86 0 0 1 1.32-.57 1.87 1.87 0 1 1-1.87 1.87 1.83 1.83 0 0 1 .49-1.24l-2.37-2.37v5.27a1.88 1.88 0 1 1-1.25 0V8.71a1.85 1.85 0 0 1-.95-.62L7.96 5.62l-5.58 5.58a2.04 2.04 0 0 0 0 2.88l8.36 8.36a2.04 2.04 0 0 0 2.88 0l8-8a2.04 2.04 0 0 0 0-2.88z"/></svg>
+      <span>Git Mastery Hub</span>
+    </a>
+    <div class="nav-controls">
+      <a href="0005-fast-forward-vs-three-way-merges.html" class="btn" style="padding: 0.4rem 0.85rem; font-size: 0.82rem;">← Lesson 0005</a>
+      <a href="0007-remotes-demystified-origin-and-clone.html" class="btn" style="padding: 0.4rem 0.85rem; font-size: 0.82rem;">Lesson 0007 →</a>
+      <a href="../reference/06-resolving-merge-conflicts.html" class="btn" style="padding: 0.4rem 0.85rem; font-size: 0.82rem;">📄 Reference Card</a>
+      <button id="themeToggleBtn" class="theme-toggle-btn" onclick="toggleTheme()" title="Switch Theme">🌙</button>
+    </div>
+  </nav>
+
+  <div class="container">
+    <header class="lesson-header">
+      <div class="badge-wrapper">
+        <span class="lesson-badge">Lesson 0006 • Module 3</span>
+        <span class="meta-pill">⏱️ 8 min read</span>
+        <span class="meta-pill">⚡ Interactive Conflict Resolver</span>
+      </div>
+      <h1>Battle-Tested Merge Conflicts</h1>
+      <p>Conquer the #1 fear of Git learners: decode raw conflict markers, resolve clashing code calmly, and know how to safely escape anytime with <code>git merge --abort</code>.</p>
+    </header>
+
+    <main>
+      <h2><span class="section-num">1</span> Why Do Conflicts Happen?</h2>
+      <p>
+        Git is amazingly smart: if you edit lines 1–10 of a file and your colleague edits lines 50–60 of the same file, Git combines them automatically!
+      </p>
+      <p>
+        A <strong>merge conflict</strong> happens <em>only</em> when both branches modified the <strong>exact same lines</strong> of a file differently since the common ancestor. Git refuses to guess which person's code is right—it hands the steering wheel to you.
+      </p>
+
+      <h2><span class="section-num">2</span> Decoding the Conflict Markers</h2>
+      <div class="conflict-editor">
+        <span class="marker-head">&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD (Current Branch: main)</span>
+        <span class="conflict-ours">const buttonColor = '#0055ff'; // Blue primary brand</span>
+        <span class="marker-mid">======= (Separator)</span>
+        <span class="conflict-theirs">const buttonColor = '#10b981'; // Green accent theme</span>
+        <span class="marker-end">&gt;&gt;&gt;&gt;&gt;&gt;&gt; feat/green-buttons (Incoming Branch)</span>
+      </div>
+
+      <h2><span class="section-num">3</span> The 4-Step Terminal Resolution Ritual</h2>
+      <ol style="margin-left: 1.5rem; color: var(--text-secondary); line-height: 1.8;">
+        <li><strong>Identify</strong>: Run <code>git status</code> to find files marked <em>both modified</em>.</li>
+        <li><strong>Edit & Decide</strong>: Open the file, pick the winner (or combine both), and delete the <code>&lt;&lt;&lt;&lt;&lt;&lt;&lt;</code>, <code>=======</code>, and <code>&gt;&gt;&gt;&gt;&gt;&gt;&gt;</code> marker lines.</li>
+        <li><strong>Stage</strong>: Run <code>git add &lt;file&gt;</code> to tell Git the conflict is resolved!</li>
+        <li><strong>Finalize</strong>: Run <code>git commit</code> (Git pre-fills a standard merge commit message).</li>
+      </ol>
+
+      <div class="callout rose">
+        <div class="callout-title">🚨 The Panic Button: git merge --abort</div>
+        <p>
+          If you ever get overwhelmed or start untangling a messy conflict by mistake, run <code>git merge --abort</code>. It cleanly resets your repository right back to the exact instant before you initiated the merge!
+        </p>
+      </div>
+
+      <h2><span class="section-num">4</span> Hands-on Conflict Resolver Simulator</h2>
+      <div class="interactive-card">
+        <div class="interactive-card-title">Live Conflict Resolution Playground</div>
+        <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 1rem;">
+          You ran <code>git merge feat/green-buttons</code> on <code>main</code> and hit a conflict in <code>theme.js</code>. Choose your resolution:
+        </p>
+
+        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem;">
+          <button class="btn" onclick="resolveConflict('ours')">Keep HEAD (Blue)</button>
+          <button class="btn" onclick="resolveConflict('theirs')">Accept Incoming (Green)</button>
+          <button class="btn" onclick="resolveConflict('combine')">Combine Both (Dynamic Theme)</button>
+          <button class="btn" onclick="resolveConflict('abort')" style="color: var(--accent-rose);">git merge --abort</button>
+        </div>
+
+        <div class="terminal-window">
+          <div class="terminal-header">
+            <div class="terminal-dots"><span class="terminal-dot red"></span><span class="terminal-dot yellow"></span><span class="terminal-dot green"></span></div>
+            <div>theme.js (Editor View)</div>
+          </div>
+          <div class="terminal-body" id="conflictEditorBody">
+            <span class="marker-head">&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</span><br>
+            <span class="conflict-ours">const buttonColor = '#0055ff';</span><br>
+            <span class="marker-mid">=======</span><br>
+            <span class="conflict-theirs">const buttonColor = '#10b981';</span><br>
+            <span class="marker-end">&gt;&gt;&gt;&gt;&gt;&gt;&gt; feat/green-buttons</span>
+          </div>
+        </div>
+
+        <div id="conflictStatusNotice" style="margin-top: 1rem; font-family: var(--font-mono); font-size: 0.88rem; color: var(--accent-amber);">
+          ⚠️ Conflict active: Markers must be resolved and staged with git add!
+        </div>
+      </div>
+
+      <h2><span class="section-num">5</span> Knowledge Check</h2>
+      <div class="quiz-container" id="quizLesson6_1">
+        <div class="quiz-question">How do you signal to Git that a conflicted file has been successfully resolved?</div>
+        <div class="quiz-option" onclick="selectOption('quizLesson6_1', 0)">A) Run git resolve &lt;file&gt;</div>
+        <div class="quiz-option" onclick="selectOption('quizLesson6_1', 1)">B) Run git add &lt;file&gt;</div>
+        <div class="quiz-option" onclick="selectOption('quizLesson6_1', 2)">C) Delete the .git/MERGE_HEAD file manually.</div>
+        <div class="quiz-feedback" id="quizLesson6_1_feedback"></div>
+      </div>
+    </main>
+
+    <footer class="lesson-footer">
+      <div>
+        <a href="0005-fast-forward-vs-three-way-merges.html" class="btn">← Lesson 0005</a>
+      </div>
+      <div class="footer-source">
+        Git Mastery Curriculum • Module 3 • Lesson 0006
+      </div>
+      <div>
+        <a href="0007-remotes-demystified-origin-and-clone.html" class="btn primary">Next: Lesson 0007 (Remotes) →</a>
+      </div>
+    </footer>
+  </div>
+
+  <script src="../assets/components.js"></script>
+  <script>
+    initQuiz('quizLesson6_1', {
+      correctIndex: 1,
+      explanation: 'Running <code>git add &lt;file&gt;</code> stages the cleaned-up file, which marks it as resolved in the Git index.'
+    });
+
+    function resolveConflict(choice) {
+      const editor = document.getElementById('conflictEditorBody');
+      const notice = document.getElementById('conflictStatusNotice');
+
+      if (choice === 'ours') {
+        editor.innerHTML = `<span style="color: var(--accent-cyan); font-weight: 700;">const buttonColor = '#0055ff'; // Blue retained</span>`;
+        notice.innerHTML = `✅ Markers removed! Now run <code>git add theme.js && git commit</code> to finalize the merge.`;
+        triggerConfetti();
+      } else if (choice === 'theirs') {
+        editor.innerHTML = `<span style="color: var(--accent-purple); font-weight: 700;">const buttonColor = '#10b981'; // Green accepted</span>`;
+        notice.innerHTML = `✅ Markers removed! Now run <code>git add theme.js && git commit</code> to finalize the merge.`;
+        triggerConfetti();
+      } else if (choice === 'combine') {
+        editor.innerHTML = `<span style="color: var(--accent-emerald); font-weight: 700;">const buttonColor = userTheme === 'dark' ? '#0055ff' : '#10b981';</span>`;
+        notice.innerHTML = `🎉 Both changes harmonized! Markers removed. Ready to stage and commit.`;
+        triggerConfetti();
+      } else if (choice === 'abort') {
+        editor.innerHTML = `<div style="color: var(--accent-rose);">Merge aborted. Working tree restored to pristine pre-merge state.</div>`;
+        notice.innerHTML = `🛡️ Safe exit executed via <code>git merge --abort</code>.`;
+      }
+    }
+  </script>
+</body>
+</html>

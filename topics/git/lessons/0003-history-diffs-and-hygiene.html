@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lesson 0003: Inspecting History, Diffs & Commit Hygiene</title>
+  <link rel="stylesheet" href="../assets/style.css">
+  <style>
+    .diff-box {
+      font-family: var(--font-mono);
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border-card);
+      border-radius: var(--radius-sm);
+      padding: 1rem;
+      margin: 1rem 0;
+      font-size: 0.88rem;
+      overflow-x: auto;
+    }
+    .diff-add { color: var(--accent-emerald); background: rgba(16, 185, 129, 0.1); display: block; padding: 0.1rem 0.4rem; }
+    .diff-del { color: var(--accent-rose); background: rgba(244, 63, 94, 0.1); display: block; padding: 0.1rem 0.4rem; }
+    .diff-meta { color: var(--accent-cyan); display: block; padding: 0.1rem 0.4rem; }
+    .diff-hunk { color: var(--accent-purple); display: block; padding: 0.1rem 0.4rem; }
+  </style>
+</head>
+<body>
+  <div id="topProgressBar" class="top-progress-bar"></div>
+
+  <nav class="sticky-nav">
+    <a href="0002-the-three-areas-and-first-commit.html" class="nav-brand">
+      <svg class="nav-logo-icon" viewBox="0 0 24 24">
+        <path d="M21.62 10.74l-8.36-8.36a2.04 2.04 0 0 0-2.88 0l-2 2a.37.37 0 0 0 0 .52l2.42 2.42a1.8 1.8 0 0 1 .53-.08 1.87 1.87 0 0 1 1.87 1.87 1.84 1.84 0 0 1-.58 1.34l2.49 2.5a1.86 1.86 0 0 1 1.32-.57 1.87 1.87 0 1 1-1.87 1.87 1.83 1.83 0 0 1 .49-1.24l-2.37-2.37v5.27a1.88 1.88 0 1 1-1.25 0V8.71a1.85 1.85 0 0 1-.95-.62L7.96 5.62l-5.58 5.58a2.04 2.04 0 0 0 0 2.88l8.36 8.36a2.04 2.04 0 0 0 2.88 0l8-8a2.04 2.04 0 0 0 0-2.88z"/>
+      </svg>
+      <span>Git Mastery Hub</span>
+    </a>
+
+    <div class="nav-controls">
+      <a href="0002-the-three-areas-and-first-commit.html" class="btn" style="padding: 0.4rem 0.85rem; font-size: 0.82rem;">← Lesson 0002</a>
+      <a href="0004-branches-as-lightweight-pointers.html" class="btn" style="padding: 0.4rem 0.85rem; font-size: 0.82rem;">Lesson 0004 →</a>
+      <a href="../reference/03-history-diffs-and-hygiene.html" class="btn" style="padding: 0.4rem 0.85rem; font-size: 0.82rem;">📄 Reference Card</a>
+      <button id="themeToggleBtn" class="theme-toggle-btn" onclick="toggleTheme()" title="Switch Theme">🌙</button>
+    </div>
+  </nav>
+
+  <div class="container">
+    <header class="lesson-header">
+      <div class="badge-wrapper">
+        <span class="lesson-badge">Lesson 0003 • Module 2</span>
+        <span class="meta-pill">⏱️ 7 min read</span>
+        <span class="meta-pill">🔍 Diff & Log Simulator</span>
+      </div>
+      <h1>Inspecting History, Diffs & Commit Hygiene</h1>
+      <p>Master the tools professional developers use every single day: visualizing project history with <code>git log</code>, inspecting exact line differences with <code>git diff</code>, writing atomic commits, and ignoring build junk with <code>.gitignore</code>.</p>
+    </header>
+
+    <main>
+      <!-- Section 1: The Problem -->
+      <h2><span class="section-num">1</span> Seeing What Actually Changed: Why "git status" Isn't Enough</h2>
+      <p>
+        In Lesson 0002, you learned that <code>git status</code> tells you <em>which files</em> were modified or staged. But it does <strong>not</strong> tell you <em>what lines changed inside those files</em>.
+      </p>
+      <p>
+        Imagine you edited 50 lines in <code>auth.js</code>. Before staging, you must answer: <em>Did I leave a debug <code>console.log</code>? Did I accidentally paste an API secret?</em> This is where <code>git diff</code> is your magnifying glass.
+      </p>
+
+      <!-- Section 2: The Two Diffs -->
+      <h2><span class="section-num">2</span> The Two Diffs: Working Tree vs Staging Area</h2>
+      <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 1.5rem; margin: 1.5rem 0;">
+        <div class="interactive-card">
+          <h3 style="color: var(--accent-amber); margin-bottom: 0.5rem;"><code>git diff</code> (Unstaged)</h3>
+          <p style="font-size: 0.9rem; color: var(--text-secondary);">
+            Compares your <strong>Working Tree</strong> against your <strong>Staging Area</strong>. Shows you edits you have saved to disk but have <em>not yet staged</em> with <code>git add</code>.
+          </p>
+          <div class="diff-box">
+            <span class="diff-meta">diff --git a/app.js b/app.js</span>
+            <span class="diff-hunk">@@ -1,3 +1,4 @@</span>
+             const port = 3000;
+            <span class="diff-del">-const mode = 'development';</span>
+            <span class="diff-add">+const mode = 'production';</span>
+            <span class="diff-add">+console.log('Server starting...');</span>
+          </div>
+        </div>
+
+        <div class="interactive-card">
+          <h3 style="color: var(--accent-emerald); margin-bottom: 0.5rem;"><code>git diff --staged</code></h3>
+          <p style="font-size: 0.9rem; color: var(--text-secondary);">
+            Compares your <strong>Staging Area</strong> against your <strong>Last Commit (HEAD)</strong>. Shows you exactly what will go into the next snapshot if you run <code>git commit</code> right now.
+          </p>
+          <div class="diff-box">
+            <span class="diff-meta">diff --git a/app.js b/app.js</span>
+            <span class="diff-hunk">@@ -1,2 +1,3 @@</span>
+             const port = 3000;
+            <span class="diff-add">+const dbUrl = process.env.DB_URL;</span>
+             server.listen(port);
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 3: Interactive Diff Inspector -->
+      <h2><span class="section-num">3</span> Interactive Diff & Log Visualizer</h2>
+      <div class="interactive-card" id="diffSimulatorCard">
+        <div class="interactive-card-title">
+          <span>Interactive Commit & Log Playground</span>
+          <span style="font-size: 0.8rem; color: var(--accent-cyan);">Live CLI State</span>
+        </div>
+        <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 1rem;">
+          Click the actions below to simulate changing code, viewing diffs, and formatting log output:
+        </p>
+        
+        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem;">
+          <button class="btn" onclick="simDiff('unstaged')">1. View Unstaged Diff</button>
+          <button class="btn" onclick="simDiff('stage')">2. git add app.js</button>
+          <button class="btn" onclick="simDiff('staged')">3. View Staged Diff</button>
+          <button class="btn" onclick="simDiff('commit')">4. Commit with Conventional Message</button>
+          <button class="btn" onclick="simDiff('log')">5. git log --oneline --graph</button>
+          <button class="btn" onclick="simDiff('reset')">Reset</button>
+        </div>
+
+        <div id="simTerminalOutput" class="terminal-window" style="margin-top: 1rem;">
+          <div class="terminal-header">
+            <div class="terminal-dots"><span class="terminal-dot red"></span><span class="terminal-dot yellow"></span><span class="terminal-dot green"></span></div>
+            <div>git terminal inspector</div>
+          </div>
+          <div class="terminal-body" id="simOutputBody">
+            <div style="color: var(--text-muted);">Click button 1 above to inspect unstaged file edits...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 4: .gitignore -->
+      <h2><span class="section-num">4</span> Keeping Your History Clean: The .gitignore File</h2>
+      <p>
+        Never commit temporary build artifacts, compiled binaries, dependency directories, or sensitive passwords. The special file named <code>.gitignore</code> tells Git to silently ignore them.
+      </p>
+
+      <div class="terminal-window">
+        <div class="terminal-header">
+          <div class="terminal-dots"><span class="terminal-dot red"></span><span class="terminal-dot yellow"></span><span class="terminal-dot green"></span></div>
+          <div>nano .gitignore</div>
+        </div>
+        <div class="terminal-body">
+          <span style="color: var(--text-muted);"># Dependencies</span><br>
+          node_modules/<br>
+          vendor/<br><br>
+          <span style="color: var(--text-muted);"># Environment secrets</span><br>
+          .env<br>
+          *.pem<br><br>
+          <span style="color: var(--text-muted);"># Build output</span><br>
+          dist/<br>
+          build/<br>
+          *.log
+        </div>
+      </div>
+
+      <!-- Section 5: Atomic Commits -->
+      <h2><span class="section-num">5</span> The Art of the Atomic Commit</h2>
+      <div class="callout amber">
+        <div class="callout-title">💡 The Golden Rule of Commit Hygiene</div>
+        <p>
+          An <strong>atomic commit</strong> does one thing and one thing only. It makes code review easy, keeps Git history readable, and allows clean rollbacks if a bug emerges.
+        </p>
+      </div>
+      <p>
+        Use the standard <strong>Conventional Commits</strong> format:
+      </p>
+      <div class="diff-box">
+        <span style="color: var(--accent-cyan); font-weight: 700;">feat(auth):</span> add token refresh endpoint<br>
+        <span style="color: var(--accent-rose); font-weight: 700;">fix(cart):</span> prevent negative item quantity on checkout<br>
+        <span style="color: var(--accent-purple); font-weight: 700;">docs(readme):</span> add local docker setup instructions
+      </div>
+
+      <!-- Section 6: Retrieval Quiz -->
+      <h2><span class="section-num">6</span> Knowledge Check</h2>
+      <div class="quiz-container" id="quizLesson3_1">
+        <div class="quiz-question">Which command compares changes between your Staging Area and your last commit?</div>
+        <div class="quiz-option" onclick="selectOption('quizLesson3_1', 0)">A) git diff</div>
+        <div class="quiz-option" onclick="selectOption('quizLesson3_1', 1)">B) git diff --staged</div>
+        <div class="quiz-option" onclick="selectOption('quizLesson3_1', 2)">C) git status -s</div>
+        <div class="quiz-option" onclick="selectOption('quizLesson3_1', 3)">D) git log -p</div>
+        <div class="quiz-feedback" id="quizLesson3_1_feedback"></div>
+      </div>
+
+      <div class="quiz-container" id="quizLesson3_2">
+        <div class="quiz-question">Why should `.env` files be included in `.gitignore`?</div>
+        <div class="quiz-option" onclick="selectOption('quizLesson3_2', 0)">A) Because Git cannot track files with leading dots.</div>
+        <div class="quiz-option" onclick="selectOption('quizLesson3_2', 1)">B) To avoid committing private API keys, database passwords, and secrets into permanent history.</div>
+        <div class="quiz-option" onclick="selectOption('quizLesson3_2', 2)">C) To make the repository download faster.</div>
+        <div class="quiz-feedback" id="quizLesson3_2_feedback"></div>
+      </div>
+    </main>
+
+    <footer class="lesson-footer">
+      <div>
+        <a href="0002-the-three-areas-and-first-commit.html" class="btn">← Lesson 0002</a>
+      </div>
+      <div class="footer-source">
+        Git Mastery Curriculum • Module 2 • Lesson 0003
+      </div>
+      <div>
+        <a href="0004-branches-as-lightweight-pointers.html" class="btn primary">Next: Lesson 0004 (Branching) →</a>
+      </div>
+    </footer>
+  </div>
+
+  <script src="../assets/components.js"></script>
+  <script>
+    initQuiz('quizLesson3_1', {
+      correctIndex: 1,
+      explanation: '<code>git diff --staged</code> (or <code>git diff --cached</code>) shows the exact difference between what is staged and the last commit snapshot (HEAD).'
+    });
+
+    initQuiz('quizLesson3_2', {
+      correctIndex: 1,
+      explanation: 'Secrets stored in <code>.env</code> must never enter Git history because commit history is immutable and easily shared across public remotes.'
+    });
+
+    let stagedState = false;
+    let committedState = false;
+
+    function simDiff(action) {
+      const out = document.getElementById('simOutputBody');
+      if (action === 'unstaged') {
+        out.innerHTML = `
+          <div><span class="terminal-prompt">$</span> <span class="terminal-cmd">git diff</span></div>
+          <div class="diff-meta">diff --git a/app.js b/app.js</div>
+          <div class="diff-hunk">@@ -1,3 +1,4 @@</div>
+          <div> const express = require('express');</div>
+          <div class="diff-del">-const PORT = 3000;</div>
+          <div class="diff-add">+const PORT = process.env.PORT || 8080;</div>
+          <div class="diff-add">+console.log('Config loaded');</div>
+          <div style="color: var(--accent-amber); margin-top: 0.5rem;">[Notice]: Red line deleted, green lines added in Working Tree. Not yet staged!</div>
+        `;
+      } else if (action === 'stage') {
+        stagedState = true;
+        out.innerHTML = `
+          <div><span class="terminal-prompt">$</span> <span class="terminal-cmd">git add app.js</span></div>
+          <div><span class="terminal-prompt">$</span> <span class="terminal-cmd">git status</span></div>
+          <div style="color: var(--accent-emerald);">Changes to be committed:</div>
+          <div style="color: var(--accent-emerald);">&nbsp;&nbsp;modified:   app.js</div>
+          <div style="color: var(--text-muted); margin-top: 0.5rem;">[Success]: File is now staged in .git/index! Run 'View Staged Diff' next.</div>
+        `;
+      } else if (action === 'staged') {
+        if (!stagedState) {
+          out.innerHTML = `<div style="color: var(--accent-rose);">⚠️ Staging area is empty! Click '2. git add app.js' first.</div>`;
+          return;
+        }
+        out.innerHTML = `
+          <div><span class="terminal-prompt">$</span> <span class="terminal-cmd">git diff --staged</span></div>
+          <div class="diff-meta">diff --git a/app.js b/app.js</div>
+          <div class="diff-hunk">@@ -1,3 +1,4 @@</div>
+          <div> const express = require('express');</div>
+          <div class="diff-del">-const PORT = 3000;</div>
+          <div class="diff-add">+const PORT = process.env.PORT || 8080;</div>
+          <div class="diff-add">+console.log('Config loaded');</div>
+          <div style="color: var(--accent-emerald); margin-top: 0.5rem;">[Verified]: This exact diff is ready to be committed!</div>
+        `;
+      } else if (action === 'commit') {
+        if (!stagedState) {
+          out.innerHTML = `<div style="color: var(--accent-rose);">⚠️ Nothing staged to commit! Stage changes first.</div>`;
+          return;
+        }
+        committedState = true;
+        stagedState = false;
+        out.innerHTML = `
+          <div><span class="terminal-prompt">$</span> <span class="terminal-cmd">git commit -m "feat(server): use dynamic port configuration"</span></div>
+          <div>[main 7f2a10b] feat(server): use dynamic port configuration</div>
+          <div> 1 file changed, 2 insertions(+), 1 deletion(-)</div>
+          <div style="color: var(--accent-cyan); margin-top: 0.5rem;">🎉 Atomic commit sealed into Git history!</div>
+        `;
+        triggerConfetti();
+      } else if (action === 'log') {
+        out.innerHTML = `
+          <div><span class="terminal-prompt">$</span> <span class="terminal-cmd">git log --oneline --graph --decorate</span></div>
+          <div>* <span style="color: var(--accent-cyan);">7f2a10b</span> (<span style="color: var(--accent-emerald); font-weight:700;">HEAD -> main</span>) feat(server): use dynamic port configuration</div>
+          <div>* <span style="color: var(--accent-cyan);">4d9e210</span> init: create initial repository structure</div>
+        `;
+      } else if (action === 'reset') {
+        stagedState = false;
+        committedState = false;
+        out.innerHTML = `<div style="color: var(--text-muted);">Playground reset to initial state.</div>`;
+      }
+    }
+  </script>
+</body>
+</html>

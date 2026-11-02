@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lesson 0012: Rebase vs Merge: The Clean Linear History Debate</title>
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+  <div id="topProgressBar" class="top-progress-bar"></div>
+
+  <nav class="sticky-nav">
+    <a href="0011-shelving-work-in-progress-git-stash.html" class="nav-brand">
+      <svg class="nav-logo-icon" viewBox="0 0 24 24"><path d="M21.62 10.74l-8.36-8.36a2.04 2.04 0 0 0-2.88 0l-2 2a.37.37 0 0 0 0 .52l2.42 2.42a1.8 1.8 0 0 1 .53-.08 1.87 1.87 0 0 1 1.87 1.87 1.84 1.84 0 0 1-.58 1.34l2.49 2.5a1.86 1.86 0 0 1 1.32-.57 1.87 1.87 0 1 1-1.87 1.87 1.83 1.83 0 0 1 .49-1.24l-2.37-2.37v5.27a1.88 1.88 0 1 1-1.25 0V8.71a1.85 1.85 0 0 1-.95-.62L7.96 5.62l-5.58 5.58a2.04 2.04 0 0 0 0 2.88l8.36 8.36a2.04 2.04 0 0 0 2.88 0l8-8a2.04 2.04 0 0 0 0-2.88z"/></svg>
+      <span>Git Mastery Hub</span>
+    </a>
+    <div class="nav-controls">
+      <a href="0011-shelving-work-in-progress-git-stash.html" class="btn" style="padding: 0.4rem 0.85rem; font-size: 0.82rem;">← Lesson 0011</a>
+      <a href="0013-pr-ready-interactive-rebase.html" class="btn" style="padding: 0.4rem 0.85rem; font-size: 0.82rem;">Lesson 0013 →</a>
+      <a href="../reference/12-rebase-vs-merge.html" class="btn" style="padding: 0.4rem 0.85rem; font-size: 0.82rem;">📄 Reference Card</a>
+      <button id="themeToggleBtn" class="theme-toggle-btn" onclick="toggleTheme()" title="Switch Theme">🌙</button>
+    </div>
+  </nav>
+
+  <div class="container">
+    <header class="lesson-header">
+      <div class="badge-wrapper">
+        <span class="lesson-badge">Lesson 0012 • Module 6</span>
+        <span class="meta-pill">⏱️ 8 min read</span>
+        <span class="meta-pill">📐 Rebase DAG Engine</span>
+      </div>
+      <h1>Rebase vs Merge: The Clean Linear History Debate</h1>
+      <p>Resolve the eternal developer debate: understand how <code>git rebase</code> lifts and replays commits to maintain a clean linear timeline, and master the Golden Rule of Rebasing.</p>
+    </header>
+
+    <main>
+      <h2><span class="section-num">1</span> Two Philosophies of Project History</h2>
+      <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 1.5rem; margin: 1.5rem 0;">
+        <div class="interactive-card">
+          <h3 style="color: var(--accent-cyan);">The Merge Philosophy ("Historical Truth")</h3>
+          <p style="font-size: 0.9rem; color: var(--text-secondary);">
+            Every branch divergence, timeline overlap, and merge commit is preserved as an exact chronological record of reality.
+          </p>
+          <div style="font-family: var(--font-mono); font-size: 0.85rem; color: var(--accent-amber); margin-top: 0.5rem;">
+            Trade-off: History graphs look like messy subway maps with criss-crossing merge bubbles.
+          </div>
+        </div>
+
+        <div class="interactive-card">
+          <h3 style="color: var(--accent-emerald);">The Rebase Philosophy ("A Story Well Told")</h3>
+          <p style="font-size: 0.9rem; color: var(--text-secondary);">
+            Git history is a published book for reviewers. Feature commits are replayed cleanly on top of the latest <code>main</code> branch tip.
+          </p>
+          <div style="font-family: var(--font-mono); font-size: 0.85rem; color: var(--accent-emerald); margin-top: 0.5rem;">
+            Benefit: 100% linear history. <code>git log</code> reads effortlessly in single straight line.
+          </div>
+        </div>
+      </div>
+
+      <h2><span class="section-num">2</span> What git rebase Actually Does Under the Hood</h2>
+      <p>
+        When you are on <code>feat/cart</code> and run <code>git rebase main</code>:
+      </p>
+      <ol style="margin-left: 1.5rem; color: var(--text-secondary); line-height: 1.8;">
+        <li>Git finds the common ancestor commit of both branches.</li>
+        <li>Git temporarily saves your feature commits (<code>C3</code>, <code>C4</code>) to temporary patch files.</li>
+        <li>Git resets your branch to the latest commit on <code>main</code> (<code>C2</code>).</li>
+        <li>Git replays your saved commits one by one on top of <code>C2</code>, generating new commit hashes (<code>C3'</code>, <code>C4'</code>).</li>
+      </ol>
+
+      <div class="callout rose">
+        <div class="callout-title">🚨 The Golden Rule of Rebasing</div>
+        <p>
+          <strong>NEVER rebase commits that exist outside your local machine on a shared public branch!</strong> Because rebasing generates new commit hashes (<code>C3'</code>), anyone else pulling that branch will experience severe history desynchronization.
+        </p>
+      </div>
+
+      <h2><span class="section-num">3</span> Interactive Rebase Simulator</h2>
+      <div class="interactive-card">
+        <div class="interactive-card-title">Live Replay Timeline</div>
+        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.25rem;">
+          <button class="btn" onclick="simRebase('rebase')">git rebase main (Replay on Top)</button>
+          <button class="btn" onclick="simRebase('merge')">git merge main (Merge Bubble)</button>
+          <button class="btn" onclick="simRebase('reset')">Reset</button>
+        </div>
+
+        <div id="rebaseGraphContainer" class="terminal-window">
+          <div class="terminal-header">
+            <div class="terminal-dots"><span class="terminal-dot red"></span><span class="terminal-dot yellow"></span><span class="terminal-dot green"></span></div>
+            <div>git log --graph view</div>
+          </div>
+          <div class="terminal-body" id="rebaseGraphBody">
+            <div>Divergent State:</div>
+            <div>* <span style="color: var(--accent-purple);">[C3] feat: add cart button</span> (feat/cart)</div>
+            <div>| * <span style="color: var(--accent-cyan);">[C2] fix: header layout</span> (main)</div>
+            <div>|/</div>
+            <div>* <span style="color: var(--text-muted);">[C1] initial commit (common ancestor)</span></div>
+          </div>
+        </div>
+
+        <div id="rebaseNotice" style="margin-top: 0.75rem; font-family: var(--font-mono); font-size: 0.88rem; color: var(--accent-cyan);">
+          Click 'git rebase main' to lift C3 and replay it on top of C2!
+        </div>
+      </div>
+
+      <h2><span class="section-num">4</span> Knowledge Check</h2>
+      <div class="quiz-container" id="quizLesson12_1">
+        <div class="quiz-question">Why does git rebase create new commit hashes (e.g., C3 becomes C3')?</div>
+        <div class="quiz-option" onclick="selectOption('quizLesson12_1', 0)">A) Because Git SHA hashes incorporate the parent commit hash, and the parent was changed to the tip of main.</div>
+        <div class="quiz-option" onclick="selectOption('quizLesson12_1', 1)">B) Because Git re-encrypts the files with a new password.</div>
+        <div class="quiz-option" onclick="selectOption('quizLesson12_1', 2)">C) To save disk space.</div>
+        <div class="quiz-feedback" id="quizLesson12_1_feedback"></div>
+      </div>
+    </main>
+
+    <footer class="lesson-footer">
+      <div>
+        <a href="0011-shelving-work-in-progress-git-stash.html" class="btn">← Lesson 0011</a>
+      </div>
+      <div class="footer-source">
+        Git Mastery Curriculum • Module 6 • Lesson 0012
+      </div>
+      <div>
+        <a href="0013-pr-ready-interactive-rebase.html" class="btn primary">Next: Lesson 0013 (Interactive Rebase) →</a>
+      </div>
+    </footer>
+  </div>
+
+  <script src="../assets/components.js"></script>
+  <script>
+    initQuiz('quizLesson12_1', {
+      correctIndex: 0,
+      explanation: 'In Git, commit SHAs are computed based on content AND parent SHA. Replaying a commit onto a new parent changes its SHA hash.'
+    });
+
+    function simRebase(mode) {
+      const body = document.getElementById('rebaseGraphBody');
+      const notice = document.getElementById('rebaseNotice');
+
+      if (mode === 'rebase') {
+        body.innerHTML = `
+          <div style="color: var(--accent-emerald); font-weight: 700;">Linear Rebased History:</div>
+          <div>* <span style="color: var(--accent-purple);">[C3'] feat: add cart button</span> (HEAD -> feat/cart)</div>
+          <div>* <span style="color: var(--accent-cyan);">[C2] fix: header layout</span> (main)</div>
+          <div>* <span style="color: var(--text-muted);">[C1] initial commit</span></div>
+        `;
+        notice.innerHTML = `🎉 Clean linear DAG! C3 was replayed on top of C2. You can now fast-forward merge into main without bubbles!`;
+        triggerConfetti();
+      } else if (mode === 'merge') {
+        body.innerHTML = `
+          <div style="color: var(--accent-cyan); font-weight: 700;">Merge Bubble History:</div>
+          <div>*   <span style="color: var(--accent-emerald);">[M1] Merge branch 'main' into feat/cart</span></div>
+          <div>|\\</div>
+          <div>| * <span style="color: var(--accent-cyan);">[C2] fix: header layout</span> (main)</div>
+          <div>* | <span style="color: var(--accent-purple);">[C3] feat: add cart button</span></div>
+          <div>|/</div>
+          <div>* <span style="color: var(--text-muted);">[C1] initial commit</span></div>
+        `;
+        notice.innerHTML = `🔀 Merge commit M1 created to combine histories. Preserves branch divergence.`;
+      } else if (mode === 'reset') {
+        location.reload();
+      }
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lesson 0007: Remotes Demystified: origin, clone & tracking branches</title>
+  <link rel="stylesheet" href="../assets/style.css">
+  <style>
+    .dual-pane {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      margin: 1.5rem 0;
+    }
+    .repo-pane {
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border-card);
+      border-radius: var(--radius-sm);
+      padding: 1.25rem;
+    }
+    .repo-pane-header {
+      font-weight: 700;
+      font-size: 0.95rem;
+      margin-bottom: 0.75rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+  </style>
+</head>
+<body>
+  <div id="topProgressBar" class="top-progress-bar"></div>
+
+  <nav class="sticky-nav">
+    <a href="0006-battle-tested-merge-conflicts.html" class="nav-brand">
+      <svg class="nav-logo-icon" viewBox="0 0 24 24"><path d="M21.62 10.74l-8.36-8.36a2.04 2.04 0 0 0-2.88 0l-2 2a.37.37 0 0 0 0 .52l2.42 2.42a1.8 1.8 0 0 1 .53-.08 1.87 1.87 0 0 1 1.87 1.87 1.84 1.84 0 0 1-.58 1.34l2.49 2.5a1.86 1.86 0 0 1 1.32-.57 1.87 1.87 0 1 1-1.87 1.87 1.83 1.83 0 0 1 .49-1.24l-2.37-2.37v5.27a1.88 1.88 0 1 1-1.25 0V8.71a1.85 1.85 0 0 1-.95-.62L7.96 5.62l-5.58 5.58a2.04 2.04 0 0 0 0 2.88l8.36 8.36a2.04 2.04 0 0 0 2.88 0l8-8a2.04 2.04 0 0 0 0-2.88z"/></svg>
+      <span>Git Mastery Hub</span>
+    </a>
+    <div class="nav-controls">
+      <a href="0006-battle-tested-merge-conflicts.html" class="btn" style="padding: 0.4rem 0.85rem; font-size: 0.82rem;">← Lesson 0006</a>
+      <a href="0008-team-synchronization-fetch-pull-push.html" class="btn" style="padding: 0.4rem 0.85rem; font-size: 0.82rem;">Lesson 0008 →</a>
+      <a href="../reference/07-remotes-and-tracking-branches.html" class="btn" style="padding: 0.4rem 0.85rem; font-size: 0.82rem;">📄 Reference Card</a>
+      <button id="themeToggleBtn" class="theme-toggle-btn" onclick="toggleTheme()" title="Switch Theme">🌙</button>
+    </div>
+  </nav>
+
+  <div class="container">
+    <header class="lesson-header">
+      <div class="badge-wrapper">
+        <span class="lesson-badge">Lesson 0007 • Module 4</span>
+        <span class="meta-pill">⏱️ 7 min read</span>
+        <span class="meta-pill">🌐 Dual-Pane Remote Simulator</span>
+      </div>
+      <h1>Remotes Demystified: origin, clone & tracking branches</h1>
+      <p>Bridge the gap between your local computer and GitHub/GitLab: understand what <code>origin</code> really means, how <code>git clone</code> works, and why remote tracking branches like <code>origin/main</code> are your local safety bookmarks.</p>
+    </header>
+
+    <main>
+      <h2><span class="section-num">1</span> What is "origin"? Just a Friendly Nickname!</h2>
+      <p>
+        Many beginners assume <code>origin</code> is a mystical Git keyword. In reality, <strong>origin is simply a shortcut alias for a URL</strong>.
+      </p>
+      <p>
+        Instead of typing <code>git push https://github.com/company/super-cool-project.git main</code> every time, Git lets you name that URL <code>origin</code>:
+      </p>
+      <div class="terminal-window">
+        <div class="terminal-body">
+          <span class="terminal-prompt">$</span> <span class="terminal-cmd">git remote add origin https://github.com/you/repo.git</span>
+        </div>
+      </div>
+
+      <h2><span class="section-num">2</span> Remote Tracking Branches: The Local Bookmark</h2>
+      <p>
+        When you connect to GitHub, Git creates <strong>Remote Tracking Branches</strong> on your machine, formatted like <code>origin/main</code>.
+      </p>
+      <div class="callout cyan">
+        <div class="callout-title">🔖 The Three Pointers of Distributed Git</div>
+        <ul style="margin-left: 1.25rem; line-height: 1.7;">
+          <li><strong><code>main</code></strong>: Your local branch pointer that you move when committing.</li>
+          <li><strong><code>origin/main</code></strong>: A read-only local bookmark recording where the server was during your last sync.</li>
+          <li><strong>Remote <code>main</code></strong>: The actual branch sitting on the remote GitHub server.</li>
+        </ul>
+      </div>
+
+      <h2><span class="section-num">3</span> Dual-Pane Interactive Remote Simulator</h2>
+      <div class="interactive-card">
+        <div class="interactive-card-title">Local Machine vs Mock Remote Origin</div>
+        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem;">
+          <button class="btn" onclick="simRemote('clone')">1. git clone &lt;repo&gt;</button>
+          <button class="btn" onclick="simRemote('local_commit')">2. Commit Locally on main</button>
+          <button class="btn" onclick="simRemote('push')">3. git push -u origin main</button>
+          <button class="btn" onclick="simRemote('reset')">Reset</button>
+        </div>
+
+        <div class="dual-pane">
+          <div class="repo-pane">
+            <div class="repo-pane-header">
+              <span>💻 Local Repository</span>
+              <span class="tree-col-badge">Your Machine</span>
+            </div>
+            <div id="localRepoBox" style="font-family: var(--font-mono); font-size: 0.85rem; color: var(--text-secondary); min-height: 80px;">
+              No repository initialized.
+            </div>
+          </div>
+
+          <div class="repo-pane">
+            <div class="repo-pane-header">
+              <span>☁️ Remote Server (origin)</span>
+              <span class="tree-col-badge" style="background: rgba(168, 85, 247, 0.2); color: var(--accent-purple);">GitHub</span>
+            </div>
+            <div id="remoteRepoBox" style="font-family: var(--font-mono); font-size: 0.85rem; color: var(--text-secondary); min-height: 80px;">
+              [Commit C1] (Initial Commit)
+            </div>
+          </div>
+        </div>
+
+        <div id="remoteSimNotice" style="margin-top: 1rem; font-family: var(--font-mono); font-size: 0.88rem; color: var(--accent-cyan);">
+          Click '1. git clone' to download the remote repository to your local machine!
+        </div>
+      </div>
+
+      <h2><span class="section-num">4</span> Knowledge Check</h2>
+      <div class="quiz-container" id="quizLesson7_1">
+        <div class="quiz-question">What is `origin/main` in Git?</div>
+        <div class="quiz-option" onclick="selectOption('quizLesson7_1', 0)">A) A live, open internet socket connection streaming to GitHub.</div>
+        <div class="quiz-option" onclick="selectOption('quizLesson7_1', 1)">B) A local read-only bookmark showing where main was on the remote server at the last fetch/push.</div>
+        <div class="quiz-option" onclick="selectOption('quizLesson7_1', 2)">C) A special branch created only during merge conflicts.</div>
+        <div class="quiz-feedback" id="quizLesson7_1_feedback"></div>
+      </div>
+    </main>
+
+    <footer class="lesson-footer">
+      <div>
+        <a href="0006-battle-tested-merge-conflicts.html" class="btn">← Lesson 0006</a>
+      </div>
+      <div class="footer-source">
+        Git Mastery Curriculum • Module 4 • Lesson 0007
+      </div>
+      <div>
+        <a href="0008-team-synchronization-fetch-pull-push.html" class="btn primary">Next: Lesson 0008 (Syncing) →</a>
+      </div>
+    </footer>
+  </div>
+
+  <script src="../assets/components.js"></script>
+  <script>
+    initQuiz('quizLesson7_1', {
+      correctIndex: 1,
+      explanation: '<code>origin/main</code> is a remote tracking branch stored on your local disk that records the last-known commit of <code>main</code> on the server.'
+    });
+
+    function simRemote(action) {
+      const local = document.getElementById('localRepoBox');
+      const remote = document.getElementById('remoteRepoBox');
+      const notice = document.getElementById('remoteSimNotice');
+
+      if (action === 'clone') {
+        local.innerHTML = `
+          <div>* [Commit C1] Initial Commit</div>
+          <div style="color: var(--accent-cyan); font-weight: 700;">HEAD -> main</div>
+          <div style="color: var(--accent-purple);">origin/main (synced at C1)</div>
+        `;
+        notice.innerHTML = `📦 Cloned successfully! Full commit history downloaded. Local <code>main</code> and tracking pointer <code>origin/main</code> both point to C1.`;
+        triggerConfetti();
+      } else if (action === 'local_commit') {
+        local.innerHTML = `
+          <div>* [Commit C2] feat: add navigation</div>
+          <div style="color: var(--accent-cyan); font-weight: 700;">HEAD -> main (ahead of origin/main by 1 commit)</div>
+          <div>* [Commit C1] Initial Commit</div>
+          <div style="color: var(--accent-purple);">origin/main (still at C1)</div>
+        `;
+        notice.innerHTML = `📝 Committed C2 locally! Notice: your local <code>main</code> moved forward, but <code>origin/main</code> remains at C1 because we haven't contacted the server yet!`;
+      } else if (action === 'push') {
+        local.innerHTML = `
+          <div>* [Commit C2] feat: add navigation</div>
+          <div style="color: var(--accent-cyan); font-weight: 700;">HEAD -> main</div>
+          <div style="color: var(--accent-purple); font-weight: 700;">origin/main (synced at C2)</div>
+          <div>* [Commit C1] Initial Commit</div>
+        `;
+        remote.innerHTML = `
+          <div>* [Commit C2] feat: add navigation</div>
+          <div>* [Commit C1] Initial Commit</div>
+        `;
+        notice.innerHTML = `🚀 Pushed C2 to remote origin! Commit delivered over the wire. Server updated and <code>origin/main</code> bookmark slid forward to C2.`;
+        triggerConfetti();
+      } else if (action === 'reset') {
+        location.reload();
+      }
+    }
+  </script>
+</body>
+</html>
