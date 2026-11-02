@@ -13,3 +13,6 @@
 
 ## Out of scope
 - {Adjacent topics explicitly excluded right now to protect the zone of proximal development}
+
+---
+*See [docs/guides/authoring-topics.md](../../docs/guides/authoring-topics.md) for full topic scaffolding, lesson authoring, and hub registration instructions.*
