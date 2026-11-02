@@ -1,0 +1,33 @@
+---
+description: Repository Gap Analysis, Health Auditing, and Automated GitHub Issue Generation rules per ADR 0011
+globs: *
+alwaysApply: true
+---
+
+# Repository Gap Analysis & Health Audit (`repo-audit`)
+
+This workspace provides an autonomous auditing and gap analysis system per ADR 0011 to proactively evaluate codebases across 6 technical axes and auto-provision prioritized GitHub issues.
+
+## Execution Directives
+
+1. **Stack Autodetection**: Automatically detect language, frameworks, package managers, and test harnesses from configuration manifests.
+2. **6-Axis Evaluation Rubric**:
+   - `audit:docs`: Setup instructions, ADRs, domain glossary, and API specifications.
+   - `audit:tests`: Unit/integration/e2e test harnesses, core logic coverage, and CI test runners.
+   - `audit:security`: Secret leaks, `.gitignore` sanity, CVE dependency audits, and OWASP compliance.
+   - `audit:arch`: Modularity, separation of concerns, coupling, and error boundary handling.
+   - `audit:ui`: Viewport responsiveness, WCAG AA accessibility, semantic HTML, and navigation flow.
+   - `audit:devops`: CI workflows, deployment automation, linters/formatters, and branch protection.
+3. **Severity & Priorities**:
+   - `priority:P0`: Critical blocker (exploitable CVE, exposed secret, broken build/install).
+   - `priority:P1`: High priority (untested core logic, missing CI pipeline, missing setup docs).
+   - `priority:P2`: Medium priority (partial coverage, outdated dependencies, missing UI a11y/responsive).
+   - `priority:P3`: Low priority (code style polish, minor doc typos, ergonomics).
+4. **Interactive Dry-Run & Deduplication Gate**:
+   - Query existing issues via `gh issue list --state all --limit 100` to prevent duplicate tickets.
+   - Display findings in a dry-run matrix and pause for user selection before creating issues.
+5. **Issue Provisioning**:
+   - Auto-create missing labels via `gh label create`.
+   - Provision issues via `gh issue create` using the standardized schema including autonomous triggers for `/triage-orchestrator` and `/feature-orchestrator`.
+6. **Persistence**:
+   - Record findings in `.audits/YYYY-MM-DD-audit.md` and commit to git.

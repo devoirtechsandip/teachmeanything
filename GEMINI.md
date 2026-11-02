@@ -17,3 +17,4 @@ See [AGENTS.md](./AGENTS.md) for the complete multi-topic policy.
 - Enforce the Acceptance Red Gate: no feature code changes until QA produces an automated failing acceptance test suite (Red).
 - Enforce context-aware persistence: `.features/<feature-id>/` for repo features, or `topics/<topic-name>/.features/<feature-id>/` for topic features, preserved across 3 sequential commits on `feat/<feature-id>-<slug>`.
 - Enforce Continuous Documentation Synchronization (`/doc-sync` per ADR 0010): Coordinator runs `/doc-sync` after Developer implementation, QA verifies doc freshness in Axis A, and staged doc diffs are sealed in Commit 3 (`docs(...)`).
+- Enforce Repository Gap Analysis & Audit System (`/repo-audit` per ADR 0011): 6-axis technical health audit, stack autodetection, interactive dry-run triage matrix, issue deduplication via `gh issue list`, automated GitHub issue provisioning with autonomous resolution triggers, and version-controlled `.audits/` persistence.

@@ -123,3 +123,21 @@ Per ADR 0010, repository and topic documentation must never drift from code impl
    - If a code change has zero documentation impact, an explicit, justified `Documentation Impact: None` entry must be recorded in `.triage/<id>/rca.md` or `<feature-dir>/verification.md`.
 4. **Commit 3 Packaging**:
    - All staged documentation changes are sealed inside Commit 3 (`docs(...)`) alongside QA and Security reports.
+
+---
+
+## 6. Repository Gap Analysis & Health Audit (`repo-audit`)
+
+Per ADR 0011, the repository provides autonomous 6-axis health auditing:
+1. **The 6 Axes**: Documentation (`audit:docs`), Test Coverage (`audit:tests`), Security (`audit:security`), Architecture (`audit:arch`), Frontend/UI (`audit:ui`), and DevOps (`audit:devops`).
+2. **Stack Profile Autodetection**: Inspects configuration manifests to identify languages, package managers, and test runners.
+3. **The Interactive Dry-Run & Deduplication Gate**:
+   - Executes `gh issue list --state all --limit 100` to prevent duplicate issues.
+   - Presents a Dry-Run table with priorities (P0–P3).
+   - Pauses for explicit human multi-selection before filing remote GitHub issues.
+4. **Issue Creation & Autonomous Linkage**:
+   - Auto-provisions missing `audit:*` and `priority:P*` labels.
+   - Files structured GitHub issues via `gh issue create` embedding direct triggers for `/triage-orchestrator` and `/feature-orchestrator`.
+5. **Persistence**:
+   - Persists version-controlled audit reports to `.audits/YYYY-MM-DD-audit.md` to track technical debt resolution over time.
+
