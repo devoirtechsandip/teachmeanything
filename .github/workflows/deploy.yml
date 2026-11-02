@@ -27,7 +27,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Validate Shell Script Syntax
         run: |
@@ -42,7 +42,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Execute Unified Test Runner
         run: bash scripts/test.sh
@@ -53,7 +53,7 @@ jobs:
     needs: [lint, test]
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Setup GitHub Pages Environment
         uses: actions/configure-pages@v5
@@ -86,7 +86,7 @@ jobs:
     if: github.event_name == 'pull_request'
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Stage Artifacts
         run: bash scripts/build-site.sh dist
