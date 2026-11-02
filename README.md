@@ -79,6 +79,7 @@ This repository is equipped with curated agent skills to support educational aut
 | **`triage-orchestrator`** | `workflow/triage-team` | Master multi-agent orchestrator executing autonomous bug triage, Red gate reproduction, minimal fix, doc sync, and 3-commit PR. | `/triage-orchestrator <issue>` |
 | **`feature-orchestrator`** | `workflow/feature-team` | Master multi-agent orchestrator executing autonomous Socratic feature specification, acceptance Red gate, implementation, doc sync, and 3-commit PR. | `/feature-orchestrator <feature>` |
 | **`improve-codebase-architecture`** | `mattpocock/skills` | Audits codebase and topic boundaries, identifies duplication or coupling, and proposes structured refactorings. | `"improve architecture"`, `"audit repo"` |
+| **`repo-audit`** | `workflow/repo-audit` | Audits repository across 6 technical axes (Docs, Tests, Security, Architecture, UI, DevOps), generates dry-run matrix, deduplicates against GitHub issues, and auto-provisions prioritized issues per [ADR 0011](file:///Users/sandipkumbhar/Documents/Personal/teachmeanything/docs/adr/0011-repository-gap-analysis-and-audit-skill.md). | `/repo-audit [path] [flags]` |
 
 ---
 

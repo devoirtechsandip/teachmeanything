@@ -57,3 +57,15 @@ When building new features, functionalities, or running `/feature-orchestrator`,
    - Exactly 3 conventional commits: (1) acceptance tests + spec, (2) implementation code, (3) QA verification + security clearance.
 5. **3-Strike Circuit Breaker**:
    - Cap implementation iterations at 3. Upon 3rd failure, reset working tree, compile `failure-debrief.md`, and halt for human consultation.
+
+---
+
+## Repository Gap Analysis & Audit Workflow
+
+When executing `/repo-audit` per ADR 0011:
+1. **Stack Autodetection**: Detect language, build tools, package managers, and test harnesses.
+2. **6-Axis Evaluation**: Evaluate (1) Docs, (2) Tests, (3) Security, (4) Architecture, (5) UI, and (6) DevOps against codified standards and safe static probes.
+3. **Interactive Dry-Run Matrix**: Query existing GitHub issues (`gh issue list`) to deduplicate, format gaps with P0–P3 priorities, and pause for human selection.
+4. **Issue Provisioning**: Auto-create missing labels (`audit:<category>`, `priority:<P0-P3>`) and file issues via `gh issue create` with autonomous resolution triggers.
+5. **Persistence**: Record audit log in `.audits/YYYY-MM-DD-audit.md` and commit to version control.
+
